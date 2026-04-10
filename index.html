@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>校园迷宫大冒险</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; font-family: 'Arial', sans-serif;
+    overflow: hidden;
+  }
+  #gameContainer {
+    position: relative;
+    width: 600px;
+    height: 620px;
+  }
+  #gameCanvas {
+    position: absolute;
+    top: 0; left: 0;
+    z-index: 1;
+    border-radius: 16px;
+    border: 4px solid #fff;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    display: none;
+  }
+  /* Start Screen */
+  #startScreen {
+    position: relative;
+    z-index: 100;
+    width: 600px;
+    height: 620px;
+    background: linear-gradient(160deg, #fff9c4, #ffe082, #ffcc80);
+    border-radius: 16px;
+    border: 4px solid #fff;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    pointer-events: auto;
+  }
+  .title-emoji { font-size: 64px; margin-bottom: 10px; animation: bounce 1s infinite alternate; }
+  @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-12px); } }
+  .game-title { font-size: 32px; font-weight: bold; color: #5c35a0; text-shadow: 2px 2px 0 #fff; margin-bottom: 8px; }
+  .game-subtitle { font-size: 16px; color: #7b5ea7; margin-bottom: 24px; }
+  .rules-box {
+    background: rgba(255,255,255,0.7);
+    border-radius: 12px; padding: 16px 24px;
+    margin-bottom: 28px; text-align: left;
+    font-size: 14px; color: #444; line-height: 2;
+    border: 2px dashed #ffb300;
+  }
+  .rules-box span { font-size: 18px; }
+  #startBtn {
+    background: linear-gradient(135deg, #43e97b, #38f9d7);
+    color: #fff; border: none; border-radius: 50px;
+    padding: 16px 48px; font-size: 22px; font-weight: bold;
+    cursor: pointer; box-shadow: 0 4px 20px rgba(56,249,215,0.5);
+    transition: transform 0.1s, box-shadow 0.1s;
+    pointer-events: auto;
+  }
+  #startBtn:hover { transform: scale(1.07); box-shadow: 0 6px 28px rgba(56,249,215,0.7); }
+  /* HUD */
+  #hud {
+    position: absolute;
+    top: 0; left: 0;
+    width: 600px; height: 50px;
+    z-index: 50;
+    display: none;
+    align-items: center; justify-content: space-between;
+    padding: 0 16px;
+    background: rgba(92,53,160,0.92);
+    border-radius: 12px 12px 0 0;
+    border-bottom: 3px solid #fff;
+  }
+  .hud-item { color: #fff; font-size: 16px; font-weight: bold; }
+  /* Overlay screens */
+  .overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 600px; height: 620px;
+    z-index: 200;
+    display: none;
+    flex-direction: column;
+    align-items: center; justify-content: center;
+    border-radius: 12px;
+    pointer-events: auto;
+  }
+  #winScreen { background: rgba(67,233,123,0.95); }
+  #loseScreen { background: rgba(255,80,80,0.95); }
+  #levelScreen { background: rgba(255,210,50,0.95); }
+  .overlay-emoji { font-size: 72px; margin-bottom: 16px; }
+  .overlay-title { font-size: 36px; font-weight: bold; color: #fff; text-shadow: 2px 2px 0 rgba(0,0,0,0.2); margin-bottom: 12px; }
+  .overlay-msg { font-size: 18px; color: #fff; margin-bottom: 28px; text-align: center; }
+  .overlay-btn {
+    background: #fff; border: none; border-radius: 50px;
+    padding: 14px 40px; font-size: 20px; font-weight: bold;
+    cursor: pointer; margin: 6px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    transition: transform 0.1s;
+    pointer-events: auto;
+  }
+  .overlay-btn:hover { transform: scale(1.07); }
+  #winScreen .overlay-btn { color: #43e97b; }
+  #loseScreen .overlay-btn { color: #ff5050; }
+  #levelScreen .overlay-btn { color: #e67e00; }
+</style>
+</head>
+<body>
+<div id="gameContainer">
+  <!-- Start Screen -->
+  <div id="startScreen">
+    <div class="title-emoji">🏫</div>
+    <div class="game-title">校园迷宫大冒险</div>
+    <div class="game-subtitle">找到钥匙，打开图书馆的大门！</div>
+    <div class="rules-box">
+      <span>🗝️</span> 收集 <b>5 把钥匙</b>才能开门<br>
+      <span>👨‍🏫</span> 碰到老师会扣 <b>1 条命</b>（共 3 条）<br>
+      <span>⬆️⬇️⬅️➡️</span> 用 <b>方向键</b> 控制移动<br>
+      <span>🚪</span> 集齐钥匙后走向 <b>终点门</b> 通关<br>
+      <span>🏆</span> 共 <b>3 关</b>，越来越难！
+    </div>
+    <button id="startBtn">🎮 游戏开始</button>
+  </div>
+
+  <!-- HUD (lives, keys, level) -->
+  <div id="hud">
+    <div class="hud-item" id="hudLevel">第 1 关</div>
+    <div class="hud-item" id="hudKeys">🗝️ 0 / 5</div>
+    <div class="hud-item" id="hudLives">❤️ 3</div>
+  </div>
+
+  <!-- Canvas -->
+  <canvas id="gameCanvas" width="600" height="620"></canvas>
+
+  <!-- Level Clear Screen -->
+  <div class="overlay" id="levelScreen">
+    <div class="overlay-emoji">🎉</div>
+    <div class="overlay-title" id="levelTitle">第 1 关通过！</div>
+    <div class="overlay-msg" id="levelMsg">太棒了！准备好下一关了吗？</div>
+    <button class="overlay-btn" id="nextLevelBtn">下一关 ▶</button>
+  </div>
+
+  <!-- Win Screen -->
+  <div class="overlay" id="winScreen">
+    <div class="overlay-emoji">🏆</div>
+    <div class="overlay-title">恭喜通关！</div>
+    <div class="overlay-msg">你收集了所有钥匙，打开了图书馆大门！<br>你是真正的校园小英雄！🌟</div>
+    <button class="overlay-btn" id="restartFromWinBtn">再玩一次 🔄</button>
+  </div>
+
+  <!-- Lose Screen -->
+  <div class="overlay" id="loseScreen">
+    <div class="overlay-emoji">😵</div>
+    <div class="overlay-title">游戏结束！</div>
+    <div class="overlay-msg" id="loseMsg">被老师发现了……下次要小心哦！</div>
+    <button class="overlay-btn" id="restartFromLoseBtn">重新开始 🔄</button>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // ============================================================
+  //  DOM References
+  // ============================================================
+  const startScreen   = document.getElementById('startScreen');
+  const hud           = document.getElementById('hud');
+  const canvas        = document.getElementById('gameCanvas');
+  const ctx           = canvas.getContext('2d');
+  const hudLevel      = document.getElementById('hudLevel');
+  const hudKeys       = document.getElementById('hudKeys');
+  const hudLives      = document.getElementById('hudLives');
+  const levelScreen   = document.getElementById('levelScreen');
+  const levelTitle    = document.getElementById('levelTitle');
+  const levelMsg      = document.getElementById('levelMsg');
+  const winScreen     = document.getElementById('winScreen');
+  const loseScreen    = document.getElementById('loseScreen');
+
+  // ============================================================
+  //  Constants
+  // ============================================================
+  const TILE  = 40;          // tile size in pixels
+  const COLS  = 15;          // map columns
+  const ROWS  = 14;          // map rows (560px) + 50px HUD = 610 ≈ 620
+  const CANVAS_W = 600;
+  const CANVAS_H = 620;
+  const HUD_H = 50;
+
+  // Tile types
+  const T_EMPTY = 0;
+  const T_WALL  = 1;
+  const T_KEY   = 2;
+  const T_DOOR  = 3;
+  const T_SIGN  = 4;
+
+  // ============================================================
+  //  Level Map Definitions
+  //  15 cols × 14 rows  (1=wall, 0=floor, 2=key, 3=door, 4=sign)
+  // ============================================================
+  const LEVELS = [
+    // ---- Level 1 ----
+    {
+      map: [
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+        [1,0,1,1,0,0,1,0,1,1,1,0,1,0,1],
+        [1,2,1,0,0,1,0,0,0,0,1,0,1,0,1],
+        [1,0,0,0,1,1,1,1,0,0,0,0,0,2,1],
+        [1,0,1,0,0,0,0,0,0,1,1,1,1,0,1],
+        [1,0,1,1,1,0,1,1,0,0,0,0,1,0,1],
+        [1,2,0,0,1,0,0,1,0,1,0,0,0,0,1],
+        [1,0,1,0,0,0,1,0,0,1,1,1,0,1,1],
+        [1,0,1,1,0,1,1,0,0,0,0,1,0,2,1],
+        [1,0,0,0,0,0,0,0,1,1,0,0,0,0,1],
+        [1,1,1,0,1,1,0,1,1,0,0,1,1,0,1],
+        [1,0,0,0,0,2,0,0,0,0,1,0,0,3,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      ],
+      playerStart: {col:1, row:1},
+      teachers: [
+        { col:7, row:1, dx:1, dy:0, steps:0, maxSteps:4 },
+        { col:3, row:6, dx:0, dy:1, steps:0, maxSteps:3 },
+      ],
+      signTexts: { '4,12':'前方有钥匙！', '10,3':'小心老师！' }
+    },
+    // ---- Level 2 ----
+    {
+      map: [
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,1,0,0,0,0,0,1,0,0,0,1],
+        [1,0,1,0,1,0,1,1,1,0,1,0,1,0,1],
+        [1,2,1,0,0,0,0,0,1,0,0,0,1,2,1],
+        [1,0,1,1,1,1,1,0,1,1,1,0,1,0,1],
+        [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+        [1,1,1,0,1,0,1,1,0,1,1,1,1,0,1],
+        [1,0,0,0,1,2,0,0,0,1,0,0,0,0,1],
+        [1,0,1,1,1,0,1,0,1,1,0,1,1,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
+        [1,1,0,1,1,1,0,1,1,0,1,0,0,2,1],
+        [1,0,0,0,0,0,0,0,0,0,1,0,1,0,1],
+        [1,2,1,1,1,0,1,1,0,0,0,0,0,3,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      ],
+      playerStart: {col:1, row:1},
+      teachers: [
+        { col:6, row:1, dx:1, dy:0, steps:0, maxSteps:5 },
+        { col:1, row:8, dx:0, dy:1, steps:0, maxSteps:3 },
+        { col:10, row:5, dx:1, dy:0, steps:0, maxSteps:3 },
+      ],
+      signTexts: { '5,7':'钥匙就在附近！', '12,9':'终点快到了！' }
+    },
+    // ---- Level 3 ----
+    {
+      map: [
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,1,1,1,1,1,0,1,1,1,1,1,0,1],
+        [1,2,0,0,0,0,1,0,0,0,0,0,1,0,1],
+        [1,0,1,1,1,0,1,1,1,0,1,0,1,0,1],
+        [1,0,1,0,0,0,0,0,0,0,1,0,0,0,1],
+        [1,0,1,0,1,1,1,1,1,0,1,1,1,0,1],
+        [1,0,0,0,1,0,2,0,1,0,0,0,0,2,1],
+        [1,1,1,0,1,0,1,0,1,0,1,1,0,0,1],
+        [1,0,0,0,0,0,1,0,0,0,0,1,1,0,1],
+        [1,0,1,1,1,0,1,1,1,1,0,0,0,0,1],
+        [1,2,0,0,1,0,0,0,0,1,0,1,1,0,1],
+        [1,0,1,0,0,0,1,0,2,0,0,0,0,3,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      ],
+      playerStart: {col:1, row:1},
+      teachers: [
+        { col:7, row:2, dx:0, dy:1, steps:0, maxSteps:4 },
+        { col:11, row:3, dx:0, dy:1, steps:0, maxSteps:5 },
+        { col:2, row:9, dx:1, dy:0, steps:0, maxSteps:4 },
+        { col:8, row:10, dx:1, dy:0, steps:0, maxSteps:3 },
+      ],
+      signTexts: { '6,7':'🗝️ 钥匙藏这里！', '9,5':'⚠️ 老师在附近！' }
+    }
+  ];
+
+  // ============================================================
+  //  Game State
+  // ============================================================
+  let currentLevel  = 0;
+  let lives         = 3;
+  let keysCollected = 0;
+  let totalKeys     = 5;
+  let gameRunning   = false;
+  let invincible    = false;  // brief invincibility after hit
+  let invTimer      = 0;
+  let signMsg       = '';
+  let signTimer     = 0;
+
+  // map state (copied so we can remove keys)
+  let mapState = [];
+
+  // Player
+  let player = { col:1, row:1, moving:false };
+
+  // Teachers (runtime copies)
+  let teachers = [];
+
+  // Input
+  let keys = {};
+
+  // Animation frame
+  let animId = null;
+  let lastTime = 0;
+  let teacherMoveTimer = 0;
+  const TEACHER_SPEED = 500; // ms between teacher moves
+
+  // ============================================================
+  //  Initialize a Level
+  // ============================================================
+  function initLevel(levelIdx) {
+    const lvl = LEVELS[levelIdx];
+    // Deep copy map
+    mapState = lvl.map.map(row => [...row]);
+    // Count keys
+    keysCollected = 0;
+    // Player
+    player = { col: lvl.playerStart.col, row: lvl.playerStart.row };
+    // Teachers
+    teachers = lvl.teachers.map(t => ({...t}));
+    // Reset timers
+    invincible = false; invTimer = 0;
+    signMsg = ''; signTimer = 0;
+    teacherMoveTimer = 0;
+    // Update HUD
+    updateHUD();
+  }
+
+  function updateHUD() {
+    hudLevel.textContent = `第 ${currentLevel+1} 关`;
+    hudKeys.textContent  = `🗝️ ${keysCollected} / ${totalKeys}`;
+    let hearts = '';
+    for(let i=0;i<lives;i++) hearts += '❤️';
+    for(let i=lives;i<3;i++) hearts += '🖤';
+    hudLives.textContent = hearts;
+  }
+
+  // ============================================================
+  //  Main Game Loop
+  // ============================================================
+  function gameLoop(ts) {
+    if (!gameRunning) return;
+    const dt = ts - lastTime;
+    lastTime = ts;
+
+    // Handle player input
+    handleInput();
+
+    // Teacher movement timer
+    teacherMoveTimer += dt;
+    if (teacherMoveTimer >= TEACHER_SPEED) {
+      teacherMoveTimer = 0;
+      moveTeachers();
+    }
+
+    // Invincibility timer
+    if (invincible) {
+      invTimer -= dt;
+      if (invTimer <= 0) invincible = false;
+    }
+
+    // Sign timer
+    if (signTimer > 0) {
+      signTimer -= dt;
+      if (signTimer < 0) signTimer = 0;
+    }
+
+    // Draw
+    draw();
+
+    animId = requestAnimationFrame(gameLoop);
+  }
+
+  // ============================================================
+  //  Input Handling (smooth key repeat)
+  // ============================================================
+  let moveDelay = 0;
+  const MOVE_INTERVAL = 150; // ms between moves when key held
+
+  function handleInput() {
+    // We track move cooldown per frame
+    if (!player._moveCooldown) player._moveCooldown = 0;
+    if (player._moveCooldown > 0) {
+      player._moveCooldown -= 16;
+      return;
+    }
+    let dr = 0, dc = 0;
+    if (keys['ArrowUp'])    dr = -1;
+    else if (keys['ArrowDown'])  dr = 1;
+    else if (keys['ArrowLeft'])  dc = -1;
+    else if (keys['ArrowRight']) dc = 1;
+    else return;
+
+    const nr = player.row + dr;
+    const nc = player.col + dc;
+    if (isWalkable(nc, nr)) {
+      player.row = nr;
+      player.col = nc;
+      player._moveCooldown = MOVE_INTERVAL;
+      checkCell();
+    }
+  }
+
+  function isWalkable(col, row) {
+    if (row < 0 || row >= ROWS || col < 0 || col >= COLS) return false;
+    const t = mapState[row][col];
+    // Door is walkable only if all keys collected
+    if (t === T_DOOR) return keysCollected >= totalKeys;
+    return t !== T_WALL;
+  }
+
+  // ============================================================
+  //  Check current cell for items
+  // ============================================================
+  function checkCell() {
+    const t = mapState[player.row][player.col];
+    if (t === T_KEY) {
+      mapState[player.row][player.col] = T_EMPTY;
+      keysCollected++;
+      updateHUD();
+      if (keysCollected >= totalKeys) {
+        signMsg = '🎊 集齐所有钥匙！去开门吧！';
+        signTimer = 3000;
+      }
+    }
+    if (t === T_DOOR && keysCollected >= totalKeys) {
+      levelClear();
+      return;
+    }
+    if (t === T_SIGN) {
+      const lvl = LEVELS[currentLevel];
+      const key = `${player.col},${player.row}`;
+      if (lvl.signTexts && lvl.signTexts[key]) {
+        signMsg = lvl.signTexts[key];
+        signTimer = 2500;
+      }
+    }
+    // Check teacher collision
+    checkTeacherCollision();
+  }
+
+  // ============================================================
+  //  Teacher Movement
+  // ============================================================
+  function moveTeachers() {
+    teachers.forEach(t => {
+      const nr = t.row + t.dy;
+      const nc = t.col + t.dx;
+      const tile = mapState[nr] && mapState[nr][nc];
+      // Check if walkable (not wall, not door, not out of bounds)
+      if (tile !== undefined && tile !== T_WALL && tile !== T_DOOR) {
+        t.row = nr; t.col = nc; t.steps++;
+      } else {
+        // Reverse direction
+        t.dx = -t.dx; t.dy = -t.dy;
+        t.steps = 0;
+      }
+      if (t.steps >= t.maxSteps) {
+        t.dx = -t.dx; t.dy = -t.dy;
+        t.steps = 0;
+      }
+    });
+    checkTeacherCollision();
+  }
+
+  function checkTeacherCollision() {
+    if (invincible) return;
+    teachers.forEach(t => {
+      if (t.row === player.row && t.col === player.col) {
+        hitByTeacher();
+      }
+    });
+  }
+
+  function hitByTeacher() {
+    if (invincible) return;
+    lives--;
+    updateHUD();
+    invincible = true;
+    invTimer = 2000; // 2s invincibility
+    signMsg = '😱 被老师发现了！';
+    signTimer = 1500;
+    if (lives <= 0) {
+      gameOver();
+    }
+  }
+
+  // ============================================================
+  //  Level Clear / Game Over / Win
+  // ============================================================
+  function levelClear() {
+    gameRunning = false;
+    if (animId) cancelAnimationFrame(animId);
+    if (currentLevel < LEVELS.length - 1) {
+      levelTitle.textContent = `第 ${currentLevel+1} 关通过！`;
+      levelMsg.textContent   = `太棒了！你收集了所有钥匙！`;
+      levelScreen.style.display = 'flex';
+    } else {
+      winScreen.style.display = 'flex';
+    }
+  }
+
+  function gameOver() {
+    gameRunning = false;
+    if (animId) cancelAnimationFrame(animId);
+    loseScreen.style.display = 'flex';
+  }
+
+  function restartGame() {
+    currentLevel = 0;
+    lives = 3;
+    hideOverlays();
+    initLevel(currentLevel);
+    gameRunning = true;
+    lastTime = performance.now();
+    animId = requestAnimationFrame(gameLoop);
+  }
+
+  function nextLevel() {
+    currentLevel++;
+    hideOverlays();
+    initLevel(currentLevel);
+    gameRunning = true;
+    lastTime = performance.now();
+    animId = requestAnimationFrame(gameLoop);
+  }
+
+  function hideOverlays() {
+    levelScreen.style.display = 'none';
+    winScreen.style.display   = 'none';
+    loseScreen.style.display  = 'none';
+  }
+
+  // ============================================================
+  //  Drawing
+  // ============================================================
+  // Color palette
+  const COLORS = {
+    floor:   '#fef9e7',
+    wall:    '#6c3483',
+    wallTop: '#9b59b6',
+    key:     '#f1c40f',
+    door:    '#e67e22',
+    doorOpen:'#27ae60',
+    sign:    '#3498db',
+    bg:      '#d5d8dc',
+  };
+
+  function draw() {
+    ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+
+    // Background
+    ctx.fillStyle = '#f0f4ff';
+    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+    // Draw map (offset by HUD height)
+    const ox = 0, oy = HUD_H;
+
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const x = ox + c * TILE;
+        const y = oy + r * TILE;
+        const t = mapState[r][c];
+        drawTile(ctx, t, x, y, c, r);
+      }
+    }
+
+    // Draw player
+    drawPlayer(ox, oy);
+
+    // Draw teachers
+    teachers.forEach(t => drawTeacher(ox, oy, t));
+
+    // Sign message
+    if (signTimer > 0 && signMsg) {
+      drawSignMsg();
+    }
+
+    // Keys overlay on door if not enough keys
+    drawDoorStatus(ox, oy);
+  }
+
+  function drawTile(ctx, t, x, y, c, r) {
+    switch(t) {
+      case T_EMPTY:
+        // Checkerboard floor
+        ctx.fillStyle = ((c+r)%2===0) ? '#f8f9fa' : '#eef2ff';
+        ctx.fillRect(x, y, TILE, TILE);
+        break;
+      case T_WALL:
+        // Wall base
+        ctx.fillStyle = '#7d3c98';
+        ctx.fillRect(x, y, TILE, TILE);
+        // Wall highlight top
+        ctx.fillStyle = '#a569bd';
+        ctx.fillRect(x, y, TILE, 6);
+        // Brick lines
+        ctx.strokeStyle = '#6c3483';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x+1, y+1, TILE-2, TILE-2);
+        break;
+      case T_KEY:
+        // Floor first
+        ctx.fillStyle = ((c+r)%2===0) ? '#f8f9fa' : '#eef2ff';
+        ctx.fillRect(x, y, TILE, TILE);
+        // Key icon
+        drawEmoji(ctx, '🗝️', x + TILE/2, y + TILE/2, 22);
+        break;
+      case T_DOOR:
+        // Floor
+        ctx.fillStyle = '#fdebd0';
+        ctx.fillRect(x, y, TILE, TILE);
+        // Door frame
+        const isOpen = keysCollected >= totalKeys;
+        ctx.fillStyle = isOpen ? '#27ae60' : '#e67e22';
+        ctx.fillRect(x+4, y+2, TILE-8, TILE-2);
+        // Door panel
+        ctx.fillStyle = isOpen ? '#2ecc71' : '#f39c12';
+        ctx.fillRect(x+8, y+6, TILE-16, TILE-10);
+        // Door knob
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(x+TILE-12, y+TILE/2, 3, 0, Math.PI*2);
+        ctx.fill();
+        // Lock or open icon
+        drawEmoji(ctx, isOpen ? '🔓' : '🔒', x+TILE/2, y+TILE*0.7, 14);
+        break;
+      case T_SIGN:
+        // Floor
+        ctx.fillStyle = ((c+r)%2===0) ? '#f8f9fa' : '#eef2ff';
+        ctx.fillRect(x, y, TILE, TILE);
+        // Sign post
+        ctx.fillStyle = '#7f8c8d';
+        ctx.fillRect(x+TILE/2-2, y+TILE/2, 4, TILE/2);
+        // Sign board
+        ctx.fillStyle = '#3498db';
+        ctx.fillRect(x+4, y+6, TILE-8, 20);
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 10px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('ℹ️', x+TILE/2, y+20);
+        break;
+      default:
+        ctx.fillStyle = '#f8f9fa';
+        ctx.fillRect(x, y, TILE, TILE);
+    }
+  }
+
+  function drawPlayer(ox, oy) {
+    const x = ox + player.col * TILE + TILE/2;
+    const y = oy + player.row * TILE + TILE/2;
+
+    // Invincibility flash
+    if (invincible && Math.floor(invTimer / 150) % 2 === 0) return;
+
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    ctx.beginPath();
+    ctx.ellipse(x, y+14, 10, 4, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    // Body
+    ctx.fillStyle = '#3498db';
+    ctx.fillRect(x-8, y-4, 16, 16);
+
+    // Head
+    ctx.fillStyle = '#fde3a7';
+    ctx.beginPath();
+    ctx.arc(x, y-8, 10, 0, Math.PI*2);
+    ctx.fill();
+
+    // Eyes
+    ctx.fillStyle = '#2c3e50';
+    ctx.beginPath(); ctx.arc(x-4, y-9, 2, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+4, y-9, 2, 0, Math.PI*2); ctx.fill();
+
+    // Smile
+    ctx.strokeStyle = '#e74c3c';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(x, y-6, 4, 0.1*Math.PI, 0.9*Math.PI);
+    ctx.stroke();
+
+    // School bag
+    ctx.fillStyle = '#e74c3c';
+    ctx.fillRect(x+7, y-2, 6, 10);
+
+    // Hat
+    ctx.fillStyle = '#2c3e50';
+    ctx.fillRect(x-10, y-18, 20, 5);
+    ctx.fillRect(x-6, y-26, 12, 10);
+  }
+
+  function drawTeacher(ox, oy, t) {
+    const x = ox + t.col * TILE + TILE/2;
+    const y = oy + t.row * TILE + TILE/2;
+
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    ctx.beginPath();
+    ctx.ellipse(x, y+14, 10, 4, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    // Body (teacher wears gray suit)
+    ctx.fillStyle = '#7f8c8d';
+    ctx.fillRect(x-9, y-4, 18, 16);
+
+    // Head
+    ctx.fillStyle = '#fde3a7';
+    ctx.beginPath();
+    ctx.arc(x, y-8, 10, 0, Math.PI*2);
+    ctx.fill();
+
+    // Glasses
+    ctx.strokeStyle = '#2c3e50';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(x-8, y-11, 6, 5);
+    ctx.strokeRect(x+2, y-11, 6, 5);
+    ctx.beginPath();
+    ctx.moveTo(x-2, y-8.5);
+    ctx.lineTo(x+2, y-8.5);
+    ctx.stroke();
+
+    // Angry eyebrows
+    ctx.strokeStyle = '#c0392b';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(x-9,y-14); ctx.lineTo(x-3,y-13); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x+3,y-13); ctx.lineTo(x+9,y-14); ctx.stroke();
+
+    // Exclamation warning
+    ctx.font = 'bold 12px Arial';
+    ctx.fillStyle = '#e74c3c';
+    ctx.textAlign = 'center';
+    ctx.fillText('!', x, y-22);
+  }
+
+  function drawEmoji(ctx, emoji, x, y, size) {
+    ctx.font = `${size}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(emoji, x, y);
+    ctx.textBaseline = 'alphabetic';
+  }
+
+  function drawSignMsg() {
+    const padding = 16;
+    ctx.font = 'bold 15px Arial';
+    const w = Math.min(ctx.measureText(signMsg).width + padding*2, 380);
+    const h = 44;
+    const x = CANVAS_W/2 - w/2;
+    const y = HUD_H + 10;
+
+    // Bubble
+    ctx.fillStyle = 'rgba(44,62,80,0.88)';
+    roundRect(ctx, x, y, w, h, 12);
+    ctx.fill();
+
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center';
+    ctx.fillText(signMsg, CANVAS_W/2, y + h/2 + 5);
+  }
+
+  function drawDoorStatus(ox, oy) {
+    // Show key count near door if keys not full
+    if (keysCollected < totalKeys) {
+      // Find door
+      for (let r=0; r<ROWS; r++) {
+        for (let c=0; c<COLS; c++) {
+          if (mapState[r][c] === T_DOOR) {
+            const x = ox + c*TILE + TILE/2;
+            const y = oy + r*TILE - 6;
+            ctx.font = 'bold 11px Arial';
+            ctx.fillStyle = '#e74c3c';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${keysCollected}/5`, x, y);
+          }
+        }
+      }
+    }
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x+r, y);
+    ctx.lineTo(x+w-r, y);
+    ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+    ctx.lineTo(x+w, y+h-r);
+    ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+    ctx.lineTo(x+r, y+h);
+    ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+    ctx.lineTo(x, y+r);
+    ctx.quadraticCurveTo(x, y, x+r, y);
+    ctx.closePath();
+  }
+
+  // ============================================================
+  //  Keyboard Events
+  // ============================================================
+  document.addEventListener('keydown', function(e) {
+    keys[e.key] = true;
+    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) {
+      e.preventDefault();
+    }
+  });
+  document.addEventListener('keyup', function(e) {
+    keys[e.key] = false;
+  });
+
+  // ============================================================
+  //  Button Event Listeners
+  // ============================================================
+  document.getElementById('startBtn').addEventListener('click', function() {
+    // Hide start screen, show canvas + HUD
+    startScreen.style.display = 'none';
+    canvas.style.display = 'block';
+    hud.style.display = 'flex';
+    // Reset game
+    currentLevel = 0;
+    lives = 3;
+    initLevel(currentLevel);
+    gameRunning = true;
+    lastTime = performance.now();
+    animId = requestAnimationFrame(gameLoop);
+  });
+
+  document.getElementById('nextLevelBtn').addEventListener('click', function() {
+    nextLevel();
+  });
+
+  document.getElementById('restartFromWinBtn').addEventListener('click', function() {
+    restartGame();
+  });
+
+  document.getElementById('restartFromLoseBtn').addEventListener('click', function() {
+    restartGame();
+  });
+
+  // BUTTON CHECKLIST: #startBtn ✓  #nextLevelBtn ✓  #restartFromWinBtn ✓  #restartFromLoseBtn ✓
+});
+</script>
+</body>
+</html>
