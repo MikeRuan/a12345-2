@@ -1,971 +1,336 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>花狗山学霸</title>
-<style>
-  /* 全局样式 */
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  
-  body {
-    font-family: 'Arial', sans-serif;
-    overflow-x: hidden;
-    background: #87CEEB;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的网站</title>
+  <style>
+    /* 页面基础样式 */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #87CEEB;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-  /* ===== 天空背景动画 ===== */
-  .sky {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: linear-gradient(180deg, #4FC3F7 0%, #81D4FA 40%, #B3E5FC 70%, #E8F5E9 100%);
-    z-index: -10;
-    transition: background 3s ease;
-  }
-  /* 小雨效果 */
-  .rain-drop {
-    position: fixed;
-    width: 2px;
-    background: linear-gradient(transparent, rgba(100,180,255,0.7));
-    border-radius: 2px;
-    animation: rainFall linear infinite;
-    z-index: -3;
-    pointer-events: none;
-  }
-  @keyframes rainFall {
-    0%   { top: -40px; opacity: 0.7; }
-    100% { top: 110vh; opacity: 0.2; }
-  }
+    /* ===== 天空背景 ===== */
+    .sky {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      background: linear-gradient(to bottom, #4fc3f7 0%, #81d4fa 40%, #b3e5fc 70%, #e1f5fe 100%);
+      overflow: hidden;
+    }
 
-  /* 阳光光晕 */
-  .sun {
-    position: fixed;
-    top: 40px;
-    right: 80px;
-    width: 90px;
-    height: 90px;
-    background: radial-gradient(circle, #FFF9C4 30%, #FFD54F 60%, rgba(255,213,79,0) 100%);
-    border-radius: 50%;
-    z-index: -4;
-    animation: sunPulse 4s ease-in-out infinite;
-    box-shadow: 0 0 60px 30px rgba(255,236,64,0.3);
-  }
-  @keyframes sunPulse {
-    0%,100% { transform: scale(1); box-shadow: 0 0 60px 30px rgba(255,236,64,0.3); }
-    50%      { transform: scale(1.12); box-shadow: 0 0 90px 45px rgba(255,236,64,0.45); }
-  }
+    /* 太阳 */
+    .sun {
+      position: absolute;
+      top: 60px;
+      right: 120px;
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, #fff176, #ffeb3b, #ffd54f);
+      border-radius: 50%;
+      box-shadow: 0 0 40px 20px rgba(255, 235, 59, 0.5);
+      animation: sunGlow 3s ease-in-out infinite alternate;
+    }
 
-  /* 白云 */
-  .cloud {
-    position: fixed;
-    background: white;
-    border-radius: 50px;
-    opacity: 0.88;
-    animation: floatCloud linear infinite;
-    z-index: -5;
-  }
-  .cloud::before, .cloud::after {
-    content: '';
-    position: absolute;
-    background: white;
-    border-radius: 50%;
-  }
-  .cloud-1 { width:140px; height:46px; top:8%; animation-duration:24s; animation-delay:0s; }
-  .cloud-1::before { width:70px; height:70px; top:-36px; left:18px; }
-  .cloud-1::after  { width:54px; height:54px; top:-24px; left:62px; }
-  .cloud-2 { width:100px; height:34px; top:16%; animation-duration:30s; animation-delay:-9s; }
-  .cloud-2::before { width:55px; height:55px; top:-28px; left:12px; }
-  .cloud-2::after  { width:40px; height:40px; top:-18px; left:50px; }
-  .cloud-3 { width:170px; height:52px; top:5%; animation-duration:38s; animation-delay:-17s; }
-  .cloud-3::before { width:80px; height:80px; top:-40px; left:24px; }
-  .cloud-3::after  { width:62px; height:62px; top:-28px; left:85px; }
-  .cloud-4 { width:90px; height:30px; top:22%; animation-duration:22s; animation-delay:-6s; }
-  .cloud-4::before { width:48px; height:48px; top:-24px; left:9px; }
-  .cloud-4::after  { width:34px; height:34px; top:-16px; left:44px; }
-  .cloud-5 { width:120px; height:38px; top:28%; animation-duration:32s; animation-delay:-14s; }
-  .cloud-5::before { width:62px; height:62px; top:-32px; left:14px; }
-  .cloud-5::after  { width:46px; height:46px; top:-20px; left:58px; }
+    @keyframes sunGlow {
+      from { box-shadow: 0 0 40px 20px rgba(255, 235, 59, 0.5); }
+      to   { box-shadow: 0 0 60px 35px rgba(255, 235, 59, 0.7); }
+    }
 
-  @keyframes floatCloud {
-    0%   { left: -220px; }
-    100% { left: 112%; }
-  }
+    /* 云朵 */
+    .cloud {
+      position: absolute;
+      background: white;
+      border-radius: 50px;
+      opacity: 0.9;
+    }
+    .cloud::before, .cloud::after {
+      content: '';
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+    }
+    .cloud1 { top: 80px; left: 80px; width: 120px; height: 40px; animation: floatCloud 18s linear infinite; }
+    .cloud1::before { width: 60px; height: 60px; top: -30px; left: 20px; }
+    .cloud1::after  { width: 50px; height: 50px; top: -25px; left: 55px; }
 
-  /* 小鸟飞翔 */
-  .bird {
-    position: fixed;
-    font-size: 22px;
-    animation: flyBird linear infinite;
-    z-index: -4;
-    filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.2));
-  }
-  .bird-1 { top: 12%; animation-duration:20s; animation-delay:0s; }
-  .bird-2 { top: 22%; animation-duration:28s; animation-delay:-8s; font-size:16px; }
-  .bird-3 { top: 9%;  animation-duration:33s; animation-delay:-13s; font-size:19px; }
-  .bird-4 { top: 17%; animation-duration:26s; animation-delay:-5s; font-size:14px; }
+    .cloud2 { top: 140px; left: 400px; width: 90px; height: 30px; animation: floatCloud 25s linear infinite; opacity: 0.75; }
+    .cloud2::before { width: 45px; height: 45px; top: -22px; left: 15px; }
+    .cloud2::after  { width: 38px; height: 38px; top: -18px; left: 42px; }
 
-  @keyframes flyBird {
-    0%   { left:-70px; transform:scaleX(1); }
-    100% { left:113%;  transform:scaleX(1); }
-  }
+    .cloud3 { top: 50px; left: 700px; width: 100px; height: 35px; animation: floatCloud 20s linear infinite 5s; }
+    .cloud3::before { width: 55px; height: 55px; top: -27px; left: 18px; }
+    .cloud3::after  { width: 44px; height: 44px; top: -22px; left: 48px; }
 
-  /* 山脉背景 */
-  .mountains {
-    position: fixed;
-    bottom: 0; left: 0;
-    width: 100%; height: 45%;
-    z-index: -3;
-  }
-  .mountain-back {
-    position: absolute;
-    bottom: 0;
-    width: 0; height: 0;
-    border-style: solid;
-  }
-  .m1 { border-width:0 200px 220px 200px; border-color:transparent transparent #2E7D32 transparent; left:-50px; }
-  .m2 { border-width:0 280px 300px 280px; border-color:transparent transparent #388E3C transparent; left:150px; }
-  .m3 { border-width:0 240px 260px 240px; border-color:transparent transparent #43A047 transparent; left:450px; }
-  .m4 { border-width:0 200px 240px 200px; border-color:transparent transparent #2E7D32 transparent; left:700px; }
-  .m5 { border-width:0 260px 280px 260px; border-color:transparent transparent #1B5E20 transparent; left:900px; }
-  .m6 { border-width:0 220px 250px 220px; border-color:transparent transparent #388E3C transparent; left:1100px; }
-  /* 深林 */
-  .forest {
-    position: absolute;
-    bottom: 0; left: 0;
-    width: 100%; height: 35%;
-    background: linear-gradient(180deg, #1B5E20 0%, #2E7D32 50%, #388E3C 100%);
-    border-radius: 40% 60% 0 0 / 20% 20% 0 0;
-  }
+    @keyframes floatCloud {
+      from { transform: translateX(0); }
+      to   { transform: translateX(110vw); }
+    }
 
-  /* ===== 主容器 ===== */
-  .container {
-    position: relative;
-    z-index: 1;
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 0 15px 80px;
-  }
+    /* ===== 树林区域 ===== */
+    .forest-layer {
+      position: absolute;
+      bottom: 120px; /* 地面上方 */
+      width: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      pointer-events: none;
+    }
 
-  /* ===== 标题区 ===== */
-  .hero {
-    text-align: center;
-    padding: 50px 20px 24px;
-  }
-  .hero-title {
-    font-size: clamp(2.4rem, 8vw, 4.2rem);
-    color: #fff;
-    text-shadow: 3px 3px 0 #FF69B4, 6px 6px 0 #4CAF50, -2px -2px 0 #2196F3;
-    letter-spacing: 5px;
-    animation: bounceTitle 2.2s ease-in-out infinite alternate;
-    display: inline-block;
-    cursor: pointer;
-  }
-  @keyframes bounceTitle {
-    0%   { transform: translateY(0) rotate(-1deg); }
-    100% { transform: translateY(-12px) rotate(1deg); }
-  }
-  .hero-subtitle {
-    margin-top: 12px;
-    font-size: 1.1rem;
-    color: #fff;
-    background: rgba(255,105,180,0.72);
-    display: inline-block;
-    padding: 7px 24px;
-    border-radius: 30px;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.18);
-    letter-spacing: 2px;
-  }
+    /* 单棵树 */
+    .tree {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
 
-  /* ===== 사진 갤러리 히어로 이미지 ===== */
-  .hero-images {
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-    flex-wrap: wrap;
-    margin: 22px 0 10px;
-  }
-  .hero-img-wrap {
-    border-radius: 22px;
-    overflow: hidden;
-    box-shadow: 0 8px 28px rgba(0,0,0,0.22);
-    border: 4px solid white;
-    transition: transform 0.3s, box-shadow 0.3s;
-    cursor: pointer;
-    position: relative;
-  }
-  .hero-img-wrap:hover {
-    transform: translateY(-8px) scale(1.04) rotate(-1deg);
-    box-shadow: 0 16px 40px rgba(0,0,0,0.3);
-  }
-  .hero-img-wrap img {
-    width: 220px;
-    height: 175px;
-    object-fit: cover;
-    display: block;
-  }
-  .hero-img-wrap .img-label {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    background: linear-gradient(transparent, rgba(0,0,0,0.55));
-    color: white;
-    font-size: 0.82rem;
-    font-weight: bold;
-    text-align: center;
-    padding: 14px 8px 8px;
-    letter-spacing: 1px;
-  }
-  @media (max-width: 600px) {
-    .hero-img-wrap img { width: 150px; height: 120px; }
-    .hero-images { gap: 10px; }
-  }
+    /* 树冠（三角形叠加） */
+    .tree-top {
+      position: relative;
+    }
+    .tree-top .t1, .tree-top .t2, .tree-top .t3 {
+      display: block;
+      width: 0;
+      height: 0;
+      margin: 0 auto;
+    }
+    .tree-top .t1 {
+      border-left: solid transparent;
+      border-right: solid transparent;
+      border-bottom: solid;
+      margin-bottom: -8px;
+    }
+    .tree-top .t2 {
+      border-left: solid transparent;
+      border-right: solid transparent;
+      border-bottom: solid;
+      margin-bottom: -10px;
+    }
+    .tree-top .t3 {
+      border-left: solid transparent;
+      border-right: solid transparent;
+      border-bottom: solid;
+    }
 
-  /* ===== 导航标签 ===== */
-  .nav-tabs {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin: 18px 0 28px;
-  }
-  .tab-btn {
-    padding: 11px 24px;
-    border: none;
-    border-radius: 30px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.16);
-    letter-spacing: 1px;
-  }
-  .tab-btn:hover { transform: translateY(-3px) scale(1.06); box-shadow: 0 8px 20px rgba(0,0,0,0.22); }
-  .tab-btn.active { transform: translateY(-5px) scale(1.09); }
-  .tab-btn-1 { background: linear-gradient(135deg,#FF9AA2,#FF69B4); color:#fff; }
-  .tab-btn-2 { background: linear-gradient(135deg,#B5EAD7,#4CAF50); color:#fff; }
-  .tab-btn-3 { background: linear-gradient(135deg,#C7CEEA,#5C6BC0); color:#fff; }
-  .tab-btn-4 { background: linear-gradient(135deg,#FFDAC1,#FF7043); color:#fff; }
-  .tab-btn-5 { background: linear-gradient(135deg,#FFD700,#FF8C00); color:#fff; }
+    /* 树干 */
+    .tree-trunk {
+      background: #5d4037;
+      border-radius: 3px;
+    }
 
-  /* ===== 内容区 ===== */
-  .section {
-    display: none;
-    animation: fadeIn 0.55s ease;
-  }
-  .section.active { display: block; }
-  @keyframes fadeIn {
-    from { opacity:0; transform:translateY(22px); }
-    to   { opacity:1; transform:translateY(0); }
-  }
+    /* 深绿色大树 */
+    .tree-big .t1 { border-left-width: 28px; border-right-width: 28px; border-bottom-width: 40px; border-bottom-color: #2e7d32; }
+    .tree-big .t2 { border-left-width: 36px; border-right-width: 36px; border-bottom-width: 48px; border-bottom-color: #388e3c; }
+    .tree-big .t3 { border-left-width: 44px; border-right-width: 44px; border-bottom-width: 56px; border-bottom-color: #43a047; }
+    .tree-big .tree-trunk { width: 18px; height: 30px; }
 
-  /* ===== 卡片通用样式 ===== */
-  .card {
-    background: rgba(255,255,255,0.88);
-    backdrop-filter: blur(8px);
-    border-radius: 26px;
-    padding: 30px;
-    margin-bottom: 26px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.13);
-    border: 2px solid rgba(255,255,255,0.65);
-  }
+    /* 中绿色中树 */
+    .tree-mid .t1 { border-left-width: 20px; border-right-width: 20px; border-bottom-width: 30px; border-bottom-color: #1b5e20; }
+    .tree-mid .t2 { border-left-width: 26px; border-right-width: 26px; border-bottom-width: 36px; border-bottom-color: #2e7d32; }
+    .tree-mid .t3 { border-left-width: 32px; border-right-width: 32px; border-bottom-width: 42px; border-bottom-color: #388e3c; }
+    .tree-mid .tree-trunk { width: 13px; height: 22px; }
 
-  /* ===== 人物卡片 ===== */
-  .characters-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
-    gap: 20px;
-  }
-  .char-card {
-    background: rgba(255,255,255,0.92);
-    border-radius: 22px;
-    padding: 22px 16px;
-    text-align: center;
-    box-shadow: 0 6px 22px rgba(0,0,0,0.12);
-    transition: transform 0.3s;
-    cursor: pointer;
-  }
-  .char-card:hover { transform: translateY(-10px) rotate(2deg); }
-  .char-emoji { font-size: 3.8rem; display: block; margin-bottom: 10px; animation: wobble 3.2s ease-in-out infinite; }
-  @keyframes wobble {
-    0%,100%{ transform: rotate(0deg); }
-    25%    { transform: rotate(-9deg); }
-    75%    { transform: rotate(9deg); }
-  }
-  .char-name { font-size: 1.2rem; font-weight: bold; margin-bottom: 6px; }
-  .char-role { font-size: 0.84rem; color: #666; margin-bottom: 8px; }
-  .char-traits { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
-  .trait-tag {
-    font-size: 0.72rem;
-    padding: 3px 10px;
-    border-radius: 12px;
-    color: white;
-    font-weight: bold;
-  }
-  .dolphin  { border-top: 5px solid #29B6F6; }
-  .person   { border-top: 5px solid #FF7043; }
-  .spider   { border-top: 5px solid #E53935; }
-  .sheep    { border-top: 5px solid #AB47BC; }
+    /* 浅绿色小树 */
+    .tree-small .t1 { border-left-width: 13px; border-right-width: 13px; border-bottom-width: 20px; border-bottom-color: #33691e; }
+    .tree-small .t2 { border-left-width: 17px; border-right-width: 17px; border-bottom-width: 25px; border-bottom-color: #558b2f; }
+    .tree-small .t3 { border-left-width: 21px; border-right-width: 21px; border-bottom-width: 30px; border-bottom-color: #689f38; }
+    .tree-small .tree-trunk { width: 9px; height: 16px; }
 
-  /* ===== 故事区 ===== */
-  .story-card { position: relative; overflow: hidden; }
-  .story-chapter {
-    margin-bottom: 30px;
-    padding: 24px;
-    border-radius: 20px;
-    border-left: 7px solid;
-    background: rgba(255,255,255,0.72);
-    position: relative;
-  }
-  .story-chapter h3 {
-    font-size: 1.28rem;
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .story-chapter p { line-height: 2; color: #333; font-size: 0.97rem; }
-  .ch-1 { border-color: #FF69B4; }
-  .ch-2 { border-color: #4CAF50; }
-  .ch-3 { border-color: #2196F3; }
-  .ch-4 { border-color: #FF7043; }
-  .ch-5 { border-color: #AB47BC; }
-  .ch-6 { border-color: #FFD700; }
+    /* 后排树（更暗、更小，营造远近感） */
+    .forest-back {
+      bottom: 155px;
+    }
+    .tree-back .t1 { border-left-width: 16px; border-right-width: 16px; border-bottom-width: 24px; border-bottom-color: #1a3a1a; }
+    .tree-back .t2 { border-left-width: 21px; border-right-width: 21px; border-bottom-width: 30px; border-bottom-color: #1e4620; }
+    .tree-back .t3 { border-left-width: 26px; border-right-width: 26px; border-bottom-width: 36px; border-bottom-color: #245227; }
+    .tree-back .tree-trunk { width: 9px; height: 18px; background: #3e2723; }
 
-  /* 故事内嵌图片 */
-  .story-img {
-    width: 100%;
-    max-height: 280px;
-    object-fit: cover;
-    border-radius: 16px;
-    margin: 16px 0;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.18);
-    border: 3px solid rgba(255,255,255,0.8);
-    display: block;
-  }
+    /* ===== 地面 ===== */
+    .ground {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 130px;
+      background: linear-gradient(to bottom, #66bb6a 0%, #4caf50 30%, #388e3c 100%);
+    }
+    /* 草地纹理细节 */
+    .ground::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 18px;
+      background: radial-gradient(ellipse 14px 10px at 50% 100%, #81c784 45%, transparent 55%);
+      background-size: 28px 18px;
+    }
 
-  /* ===== 日记区 ===== */
-  .diary-entry {
-    background: linear-gradient(135deg, rgba(255,255,255,0.92), rgba(255,240,250,0.92));
-    border-radius: 20px;
-    padding: 24px;
-    margin-bottom: 22px;
-    box-shadow: 0 5px 18px rgba(0,0,0,0.11);
-    position: relative;
-  }
-  .diary-author {
-    display: flex;
-    align-items: center;
-    gap: 13px;
-    margin-bottom: 13px;
-  }
-  .diary-avatar { font-size: 2.3rem; }
-  .diary-name { font-weight: bold; font-size: 1.06rem; }
-  .diary-date { font-size: 0.8rem; color: #999; }
-  .diary-text { line-height: 1.92; color: #444; font-size: 0.95rem; }
-  .diary-stamp {
-    position: absolute;
-    top: 16px; right: 18px;
-    font-size: 2rem;
-    opacity: 0.48;
-    transform: rotate(15deg);
-  }
+    /* ===== 内容区 ===== */
+    .content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 10;
+    }
 
-  /* 日记内嵌图片 */
-  .diary-img {
-    width: 100%;
-    max-height: 220px;
-    object-fit: cover;
-    border-radius: 14px;
-    margin: 14px 0 6px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.16);
-    border: 3px solid rgba(255,255,255,0.9);
-  }
+    .content h1 {
+      font-size: 3rem;
+      color: white;
+      text-shadow: 2px 4px 8px rgba(0,0,0,0.3);
+      margin-bottom: 10px;
+    }
 
-  /* ===== 学习板块 ===== */
-  .study-section h2 {
-    text-align: center;
-    font-size: 1.6rem;
-    color: #2E7D32;
-    margin-bottom: 20px;
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-  }
-  .tips-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-  }
-  .tip-card {
-    padding: 22px;
-    border-radius: 18px;
-    text-align: center;
-    color: white;
-    box-shadow: 0 5px 16px rgba(0,0,0,0.16);
-    transition: transform 0.3s;
-  }
-  .tip-card:hover { transform: scale(1.06); }
-  .tip-card .tip-icon { font-size: 2.6rem; margin-bottom: 10px; }
-  .tip-card h4 { font-size: 1rem; margin-bottom: 8px; }
-  .tip-card p  { font-size: 0.82rem; opacity: 0.93; line-height: 1.65; }
-  .tip-1 { background: linear-gradient(135deg,#FF9AA2,#FF69B4); }
-  .tip-2 { background: linear-gradient(135deg,#85E89D,#2ECC71); }
-  .tip-3 { background: linear-gradient(135deg,#79B8FF,#2196F3); }
-  .tip-4 { background: linear-gradient(135deg,#FFCC80,#FF7043); }
-  .tip-5 { background: linear-gradient(135deg,#CE93D8,#AB47BC); }
-  .tip-6 { background: linear-gradient(135deg,#80DEEA,#00ACC1); }
+    .content p {
+      font-size: 1.2rem;
+      color: #e3f2fd;
+      text-shadow: 1px 2px 4px rgba(0,0,0,0.2);
+      margin-bottom: 30px;
+    }
 
-  /* 名言横幅 */
-  .quote-banner {
-    background: linear-gradient(135deg, #FF69B4, #FF9800, #4CAF50, #2196F3);
-    background-size: 300% 300%;
-    animation: gradientShift 5s ease infinite;
-    border-radius: 20px;
-    padding: 24px 28px;
-    color: white;
-    text-align: center;
-    margin-bottom: 24px;
-    box-shadow: 0 6px 24px rgba(0,0,0,0.2);
-  }
-  @keyframes gradientShift {
-    0%  { background-position:0% 50%; }
-    50% { background-position:100% 50%; }
-    100%{ background-position:0% 50%; }
-  }
-  .quote-banner p { font-size: 1.15rem; font-weight: bold; letter-spacing: 1px; line-height: 1.8; }
+    /* ===== 图片画廊 ===== */
+    .gallery {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(8px);
+      border-radius: 20px;
+      padding: 20px;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+      border: 2px solid rgba(255,255,255,0.4);
+    }
 
-  /* ===== 相册板块 ===== */
-  .gallery-section h2 {
-    text-align: center;
-    font-size: 1.5rem;
-    color: #C2185B;
-    margin-bottom: 20px;
-  }
-  .gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 22px;
-    margin-bottom: 20px;
-  }
-  .gallery-item {
-    border-radius: 22px;
-    overflow: hidden;
-    box-shadow: 0 8px 28px rgba(0,0,0,0.18);
-    border: 4px solid white;
-    transition: transform 0.35s, box-shadow 0.35s;
-    cursor: pointer;
-    position: relative;
-    background: #f0f8ff;
-  }
-  .gallery-item:hover {
-    transform: translateY(-10px) rotate(-1.5deg);
-    box-shadow: 0 20px 44px rgba(0,0,0,0.26);
-  }
-  .gallery-item img {
-    width: 100%;
-    height: 240px;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.4s;
-  }
-  .gallery-item:hover img { transform: scale(1.07); }
-  .gallery-caption {
-    background: linear-gradient(135deg, rgba(255,105,180,0.88), rgba(76,175,80,0.88));
-    color: white;
-    text-align: center;
-    padding: 14px 12px;
-    font-weight: bold;
-    font-size: 0.95rem;
-    letter-spacing: 1px;
-  }
-  .gallery-caption .caption-sub {
-    font-size: 0.78rem;
-    opacity: 0.88;
-    margin-top: 4px;
-    font-weight: normal;
-  }
+    .gallery img {
+      width: 140px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 3px solid white;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+    }
 
-  /* 图片模态框 */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.78);
-    z-index: 1000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    animation: fadeInModal 0.3s ease;
-  }
-  .modal-overlay.open { display: flex; }
-  @keyframes fadeInModal {
-    from { opacity:0; } to { opacity:1; }
-  }
-  .modal-content {
-    position: relative;
-    max-width: 90vw;
-    max-height: 90vh;
-    border-radius: 22px;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    border: 5px solid white;
-    animation: popModal 0.3s cubic-bezier(.36,.07,.19,.97);
-  }
-  @keyframes popModal {
-    0%   { transform: scale(0.7); }
-    100% { transform: scale(1); }
-  }
-  .modal-content img {
-    display: block;
-    max-width: 80vw;
-    max-height: 80vh;
-    object-fit: contain;
-  }
-  .modal-close {
-    position: absolute;
-    top: 12px; right: 14px;
-    background: rgba(255,105,180,0.9);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 38px; height: 38px;
-    font-size: 1.3rem;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-    z-index: 10;
-    transition: background 0.2s;
-  }
-  .modal-close:hover { background: #E91E63; }
-  .modal-label {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    background: linear-gradient(transparent, rgba(0,0,0,0.65));
-    color: white;
-    text-align: center;
-    padding: 24px 12px 14px;
-    font-weight: bold;
-    font-size: 1rem;
-    letter-spacing: 1px;
-  }
+    .gallery img:hover {
+      transform: scale(1.12) rotate(-2deg);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+    }
 
-  /* ===== 页脚 ===== */
-  .footer {
-    text-align: center;
-    padding: 28px;
-    color: rgba(255,255,255,0.95);
-    font-size: 0.92rem;
-    text-shadow: 1px 1px 4px rgba(0,0,0,0.35);
-  }
-
-  /* ===== 漂浮花朵装饰 ===== */
-  .petal {
-    position: fixed;
-    font-size: 20px;
-    animation: petalFall linear infinite;
-    z-index: -2;
-    opacity: 0.72;
-    pointer-events: none;
-  }
-  @keyframes petalFall {
-    0%   { top: -30px; transform: rotate(0deg) translateX(0); opacity:0.7; }
-    50%  { transform: rotate(180deg) translateX(32px); }
-    100% { top: 110vh; transform: rotate(360deg) translateX(-22px); opacity:0; }
-  }
-
-  /* ===== 响应式 ===== */
-  @media (max-width: 600px) {
-    .hero-title { font-size: 2rem; }
-    .card { padding: 18px; }
-    .characters-grid { grid-template-columns: 1fr 1fr; }
-    .gallery-grid { grid-template-columns: 1fr; }
-  }
-</style>
+    /* ===== 响应式 ===== */
+    @media (max-width: 600px) {
+      .content h1 { font-size: 2rem; }
+      .gallery img { width: 100px; height: 70px; }
+      .sun { width: 55px; height: 55px; right: 30px; top: 40px; }
+    }
+  </style>
 </head>
 <body>
 
-<!-- 天空背景 -->
-<div class="sky" id="sky"></div>
+  <!-- 主场景容器 -->
+  <div class="sky">
 
-<!-- 阳光 -->
-<div class="sun" id="sun"></div>
+    <!-- 太阳 -->
+    <div class="sun"></div>
 
-<!-- 白云 -->
-<div class="cloud cloud-1"></div>
-<div class="cloud cloud-2"></div>
-<div class="cloud cloud-3"></div>
-<div class="cloud cloud-4"></div>
-<div class="cloud cloud-5"></div>
+    <!-- 云朵 -->
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+    <div class="cloud cloud3"></div>
 
-<!-- 小鸟 -->
-<div class="bird bird-1">🐦</div>
-<div class="bird bird-2">🐤</div>
-<div class="bird bird-3">🦋</div>
-<div class="bird bird-4">🐦</div>
-
-<!-- 飘落花朵 -->
-<div class="petal" style="left:8%;  animation-duration:9s;  animation-delay:0s;">🌸</div>
-<div class="petal" style="left:22%; animation-duration:12s; animation-delay:-3s;">🌺</div>
-<div class="petal" style="left:42%; animation-duration:10s; animation-delay:-7s;">🌼</div>
-<div class="petal" style="left:63%; animation-duration:14s; animation-delay:-1s;">🌸</div>
-<div class="petal" style="left:78%; animation-duration:8s;  animation-delay:-10s;">🍀</div>
-<div class="petal" style="left:53%; animation-duration:15s; animation-delay:-5s;">🌺</div>
-<div class="petal" style="left:88%; animation-duration:11s; animation-delay:-4s;">🌸</div>
-
-<!-- 山脉 -->
-<div class="mountains">
-  <div class="mountain-back m1"></div>
-  <div class="mountain-back m2"></div>
-  <div class="mountain-back m3"></div>
-  <div class="mountain-back m4"></div>
-  <div class="mountain-back m5"></div>
-  <div class="mountain-back m6"></div>
-  <div class="forest"></div>
-</div>
-
-<!-- 图片模态框 -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal-content">
-    <button class="modal-close" id="modalClose">✕</button>
-    <img src="" alt="花狗山" id="modalImg">
-    <div class="modal-label" id="modalLabel"></div>
-  </div>
-</div>
-
-<!-- 主内容 -->
-<div class="container">
-
-  <!-- 标题 -->
-  <div class="hero">
-    <div class="hero-title" id="heroTitle">🌸 花狗山学霸 🌸</div>
-    <div class="hero-subtitle">✨ 善良·好学·活泼·有趣 ✨</div>
-  </div>
-
-  <!-- 三张主图片展示 -->
-  <div class="hero-images">
-    <div class="hero-img-wrap" id="heroImg1">
-      <img src="https://raw.githubusercontent.com/MikeRuan/ai-camp-assets/main/uploads/76ca12be-8448-4026-b5a3-f782a35771b4.jpg" alt="花狗山的精灵们">
-      <div class="img-label">🌸 花狗山的精灵们</div>
+    <!-- ===== 后排树林（地平线远处，颜色更深更暗） ===== -->
+    <div class="forest-layer forest-back">
+      <div class="tree tree-back"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
+      <div class="tree tree-back"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
+      <div class="tree tree-back"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
+      <div class="tree tree-back"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
+      <div class="tree tree-back"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
+      <div class="tree tree-back"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
+      <div class="tree tree-back"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
+      <div class="tree tree-back"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
+      <div class="tree tree-back"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
     </div>
-    <div class="hero-img-wrap" id="heroImg2">
-      <img src="https://raw.githubusercontent.com/MikeRuan/ai-camp-assets/main/uploads/18ff0233-36dc-4e57-9e41-bbdfa0e1c2bd.jpg" alt="快乐的学霸日常">
-      <div class="img-label">📚 快乐的学霸日常</div>
+
+    <!-- ===== 前排树林（地平线近处，颜色鲜艳，大小混合） ===== -->
+    <div class="forest-layer">
+      <div class="tree tree-small"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
+      <div class="tree tree-big"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
+      <div class="tree tree-mid"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
+      <div class="tree tree-big"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
+      <div class="tree tree-small"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
+      <div class="tree tree-mid"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
+      <div class="tree tree-big"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
+      <div class="tree tree-small"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
+      <div class="tree tree-mid"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
+      <div class="tree tree-big"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
+      <div class="tree tree-small"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
     </div>
-    <div class="hero-img-wrap" id="heroImg3">
-      <img src="https://raw.githubusercontent.com/MikeRuan/ai-camp-assets/main/uploads/73720cd1-9406-4af7-a58f-a49b97327ff1.jpg" alt="花狗山的奇妙冒险">
-      <div class="img-label">🏔️ 花狗山的奇妙冒险</div>
-    </div>
-  </div>
 
-  <!-- 导航标签 -->
-  <div class="nav-tabs">
-    <button class="tab-btn tab-btn-1 active" id="tabCharacters">🐬 认识朋友们</button>
-    <button class="tab-btn tab-btn-2" id="tabStory">📖 精彩故事</button>
-    <button class="tab-btn tab-btn-3" id="tabDiary">📝 学霸日记</button>
-    <button class="tab-btn tab-btn-4" id="tabStudy">🌟 学习秘籍</button>
-    <button class="tab-btn tab-btn-5" id="tabGallery">🖼️ 精彩相册</button>
-  </div>
+    <!-- 地面草地 -->
+    <div class="ground"></div>
 
-  <!-- ===== 第1板块：人物介绍 ===== -->
-  <div class="section active" id="sectionCharacters">
-    <div class="card">
-      <div style="text-align:center; margin-bottom:24px;">
-        <h2 style="font-size:1.55rem; color:#E91E63;">🏔️ 花狗山的神奇精灵们</h2>
-        <p style="color:#666; margin-top:10px; font-size:0.96rem; line-height:1.8;">
-          在云雾缭绕的花狗山深处，住着四位特别的小精灵。<br>
-          他们善良、聪明、爱学习，是全山最受欢迎的学霸！
-        </p>
-      </div>
-      <div class="characters-grid">
+    <!-- 页面文字内容 + 图片 -->
+    <div class="content">
+      <h1>🌲 我的美丽网站 🌲</h1>
+      <p>欢迎来到我的第一个网站！</p>
 
-        <!-- 小海豚 -->
-        <div class="char-card dolphin" id="charDolphin">
-          <span class="char-emoji">🐬</span>
-          <div class="char-name" style="color:#0288D1;">小海豚</div>
-          <div class="char-role">数学天才 · 游泳健将</div>
-          <div class="char-traits">
-            <span class="trait-tag" style="background:#29B6F6;">聪明</span>
-            <span class="trait-tag" style="background:#4FC3F7;">温柔</span>
-            <span class="trait-tag" style="background:#0288D1;">勤奋</span>
-          </div>
-          <p style="font-size:0.8rem; color:#555; margin-top:10px; line-height:1.65;">
-            喜欢在山间溪流里畅游，用数学解决所有难题。最爱在雨天翻滚！
-          </p>
-        </div>
-
-        <!-- 小人人 -->
-        <div class="char-card person" id="charPerson">
-          <span class="char-emoji">👦</span>
-          <div class="char-name" style="color:#E64A19;">小人人</div>
-          <div class="char-role">文学达人 · 故事大王</div>
-          <div class="char-traits">
-            <span class="trait-tag" style="background:#FF7043;">活泼</span>
-            <span class="trait-tag" style="background:#FF8A65;">创意</span>
-            <span class="trait-tag" style="background:#E64A19;">勇敢</span>
-          </div>
-          <p style="font-size:0.8rem; color:#555; margin-top:10px; line-height:1.65;">
-            脑子里装满了奇妙故事，走到哪里都能让朋友们开怀大笑！
-          </p>
-        </div>
-
-        <!-- 蜘蛛侠 -->
-        <div class="char-card spider" id="charSpider">
-          <span class="char-emoji">🕷️</span>
-          <div class="char-name" style="color:#C62828;">蜘蛛侠</div>
-          <div class="char-role">科学探索家 · 护林英雄</div>
-          <div class="char-traits">
-            <span class="trait-tag" style="background:#E53935;">正义</span>
-            <span class="trait-tag" style="background:#EF5350;">机智</span>
-            <span class="trait-tag" style="background:#C62828;">坚强</span>
-          </div>
-          <p style="font-size:0.8rem; color:#555; margin-top:10px; line-height:1.65;">
-            用蛛网收集树叶标本，保护花狗山的每一朵小花。最爱研究昆虫！
-          </p>
-        </div>
-
-        <!-- 小羊羊 -->
-        <div class="char-card sheep" id="charSheep">
-          <span class="char-emoji">🐑</span>
-          <div class="char-name" style="color:#7B1FA2;">小羊羊</div>
-          <div class="char-role">音乐天使 · 善心使者</div>
-          <div class="char-traits">
-            <span class="trait-tag" style="background:#AB47BC;">善良</span>
-            <span class="trait-tag" style="background:#BA68C8;">温暖</span>
-            <span class="trait-tag" style="background:#7B1FA2;">努力</span>
-          </div>
-          <p style="font-size:0.8rem; color:#555; margin-top:10px; line-height:1.65;">
-            每天早晨用美妙歌声叫醒花狗山，帮助所有迷路的小动物回家！
-          </p>
-        </div>
-
+      <!-- 图片画廊 -->
+      <div class="gallery">
+        <img src="https://raw.githubusercontent.com/MikeRuan/ai-camp-assets/main/uploads/76ca12be-8448-4026-b5a3-f782a35771b4.jpg" alt="图片1">
+        <img src="https://raw.githubusercontent.com/MikeRuan/ai-camp-assets/main/uploads/18ff0233-36dc-4e57-9e41-bbdfa0e1c2bd.jpg" alt="图片2">
+        <img src="https://raw.githubusercontent.com/MikeRuan/ai-camp-assets/main/uploads/73720cd1-9406-4af7-a58f-a49b97327ff1.jpg" alt="图片3">
       </div>
     </div>
 
-    <!-- 花狗山介绍 + 插图 -->
-    <div class="card" style="background:linear-gradient(135deg,rgba(200,255,220,0.9),rgba(200,240,255,0.9));">
-      <h3 style="color:#2E7D32; font-size:1.32rem; margin-bottom:14px;">🏔️ 花狗山是什么地方？</h3>
-      <img src="https://raw.githubusercontent.com/MikeRuan/ai-camp-assets/main/uploads/76ca12be-8448-4026-b5a3-f782a35771b4.jpg"
-           alt="花狗山风光" 
-           style="width:100%; max-height:240px; object-fit:cover; border-radius:18px; margin-bottom:16px; box-shadow:0 6px 20px rgba(0,0,0,0.15); border:3px solid white; cursor:pointer;"
-           id="landscapeImg">
-      <p style="line-height:1.95; color:#333; font-size:0.97rem;">
-        花狗山坐落在云雾之间，山顶常年飘着五颜六色的云朵。山上有会唱歌的泉水、会跳舞的树木、还有数不清的奇花异草。
-        这里是精灵们的乐园，也是知识的宝库。每当夜晚降临，月亮会把银光洒在山间的图书馆里，
-        小精灵们就在那里读书、讨论、一起探索世界的奥秘。
-        偶尔，山里会下一场轻柔的小雨——那是花狗山给精灵们的礼物，雨后彩虹横跨山谷，美得像一幅画。🌈🌙✨
-      </p>
-      <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:18px;">
-        <span style="background:#A5D6A7; color:#1B5E20; padding:6px 14px; border-radius:20px; font-size:0.85rem; font-weight:bold;">🌸 满山鲜花</span>
-        <span style="background:#81D4FA; color:#01579B; padding:6px 14px; border-radius:20px; font-size:0.85rem; font-weight:bold;">💧 清澈溪流</span>
-        <span style="background:#FFE082; color:#E65100; padding:6px 14px; border-radius:20px; font-size:0.85rem; font-weight:bold;">📚 神奇图书馆</span>
-        <span style="background:#F48FB1; color:#880E4F; padding:6px 14px; border-radius:20px; font-size:0.85rem; font-weight:bold;">🌙 月光课堂</span>
-        <span style="background:#CE93D8; color:#4A148C; padding:6px 14px; border-radius:20px; font-size:0.85rem; font-weight:bold;">🦋 蝴蝶精灵</span>
-        <span style="background:#B2DFDB; color:#004D40; padding:6px 14px; border-radius:20px; font-size:0.85rem; font-weight:bold;">🌧️ 温柔小雨</span>
-      </div>
-    </div>
-  </div>
+  </div><!-- end .sky -->
 
-  <!-- ===== 第2板块：故事 ===== -->
-  <div class="section" id="sectionStory">
+  <script>
+    // 页面加载完成后执行
+    document.addEventListener('DOMContentLoaded', function() {
 
-    <div class="quote-banner">
-      <p>📖 "每一个故事，都是花狗山送给世界最珍贵的礼物。"<br>
-         —— 花狗山学霸们</p>
-    </div>
+      // 让云朵在动画结束后重新从左边出现（循环）
+      var clouds = document.querySelectorAll('.cloud');
+      clouds.forEach(function(cloud) {
+        // 随机化初始位置，让云朵更自然
+        var randomStart = Math.random() * 80;
+        cloud.style.left = randomStart + 'vw';
+      });
 
-    <div class="card story-card">
+      // 点击图片放大效果
+      var imgs = document.querySelectorAll('.gallery img');
+      imgs.forEach(function(img) {
+        img.addEventListener('click', function() {
+          // 创建一个临时全屏遮罩
+          var overlay = document.createElement('div');
+          overlay.style.cssText = [
+            'position:fixed', 'top:0', 'left:0', 'width:100vw', 'height:100vh',
+            'background:rgba(0,0,0,0.8)', 'display:flex', 'align-items:center',
+            'justify-content:center', 'z-index:9999', 'cursor:pointer'
+          ].join(';');
 
-      <!-- 第一章 -->
-      <div class="story-chapter ch-1">
-        <h3><span>🌸</span> 第一章：花狗山的清晨</h3>
-        <img src="https://raw.githubusercontent.com/MikeRuan/ai-camp-assets/main/uploads/18ff0233-36dc-4e57-9e41-bbdfa0e1c2bd.jpg" 
-             alt="花狗山清晨" class="story-img" id="storyImg1">
-        <p>
-          太阳刚刚爬上花狗山的山顶，金色的光芒把整片森林染成了橙红色。小羊羊早早起床，
-          站在最高的石头上，对着山谷唱起了今天的第一首歌：🎵<br><br>
-          <em style="color:#AB47BC; font-style:italic;">"花狗山的早晨多美好，溪水在笑，小鸟在跑，朋友们快快起来吧！"</em><br><br>
-          歌声刚落，一道彩色的身影从溪流里一跃而出——是小海豚！水珠飞溅，在阳光下变成了七彩的虹。
-          "小羊羊！今天的数学题我又想出新解法了！"小海豚兴奋地喊道，尾巴在水里拍出啪嗒啪嗒的声响。
-          小人人从树屋的窗户探出脑袋，头发乱得像鸟巢一样，哈欠连天地说：
-          "等等我！我昨晚写了一个超级好笑的故事要讲给你们听！"
-          就在这时，蜘蛛侠从最高的松树上荡下来，落地时带起一阵松针香气。
-          四个好朋友在溪边集合，新的一天，美好地开始了。🐬👦🕷️🐑
-        </p>
-      </div>
+          var bigImg = document.createElement('img');
+          bigImg.src = img.src;
+          bigImg.style.cssText = 'max-width:90vw;max-height:90vh;border-radius:16px;border:4px solid white;';
 
-      <!-- 第二章 -->
-      <div class="story-chapter ch-2">
-        <h3><span>🕸️</span> 第二章：蜘蛛侠的神奇大发现</h3>
-        <p>
-          这天下午，阳光透过树梢洒下金色的光斑，蜘蛛侠在林子深处悄悄爬行，
-          忽然眼前出现了一片从未见过的蓝色蘑菇！蘑菇在阳光下闪闪发光，像一群蓝色的小灯泡，
-          散发着淡淡的、像薄荷一样的香气。🍄✨<br><br>
-          "哇！这一定是花狗山的新物种！"蜘蛛侠激动得差点从树上掉下来，连忙用蛛网编了一个精致的小篮子，
-          轻轻采了三朵，飞奔去找朋友们。小海豚戴上想象中的小眼镜，认真地说要研究蘑菇里的化学成分；
-          小人人立刻哼出了一首《蓝蘑菇之歌》；小羊羊温柔地捧着蘑菇说：
-          "研究完我们把它们种回去，让它们继续在山里快乐生长！" 
-          大家都点点头，眼睛里闪着善良的光——这一刻，花狗山比任何时候都更美丽。
-        </p>
-      </div>
+          overlay.appendChild(bigImg);
+          document.body.appendChild(overlay);
 
-      <!-- 第三章 -->
-      <div class="story-chapter ch-3">
-        <h3><span>🌧️</span> 第三章：小雨天的数学大桥</h3>
-        <p>
-          那是一个温柔的雨天。花狗山的雨总是轻轻柔柔的，像有人在天上洒花瓣，
-          但这一次却下得比平时大一些，山间小路变成了欢腾的小河。
-          住在山脚下的松鼠一家被困住了，松鼠妈妈抱着三岁的奇奇站在石头上，急得直哭。🐿️<br><br>
-          小海豚迎着细雨跳进水里，冰凉的水花打在脸上，她一点也不在乎。
-          她眯起眼睛观察了十秒钟，然后大声指挥：
-          "水流速度每秒约0.8米，桥需要承重20公斤，用那根倒下的大树干，
-          加上蜘蛛侠的蛛网加固，正好合适！"
-          大家齐心协力，蜘蛛侠甩出银色蛛网，小人人和小羊羊一起推动树干，
-          一座临时小桥就这样搭好了！🌉
-          松鼠一家平安过桥，奇奇抹掉眼泪，伸出小爪子对小海豚说：
-          "谢谢！你们是世界上最厉害的学霸！"
-          小海豚笑着说："数学不只是课本里的题目，它就住在生活里！"
-        </p>
-      </div>
+          // 点击遮罩关闭
+          overlay.addEventListener('click', function() {
+            document.body.removeChild(overlay);
+          });
+        });
+      });
 
-      <!-- 第四章 -->
-      <div class="story-chapter ch-4">
-        <h3><span>🎭</span> 第四章：故事节的大表演</h3>
-        <img src="https://raw.githubusercontent.com/MikeRuan/ai-camp-assets/main/uploads/73720cd1-9406-4af7-a58f-a49b97327ff1.jpg" 
-             alt="故事节表演" class="story-img" id="storyImg2">
-        <p>
-          秋天来了，枫叶把花狗山染成了一片金红，山里举办了一年一度最盛大的庆典——"故事节"！
-          小人人揽下了导演的重任，他用枫叶做了华丽的帽子，用野花编了美丽的围裙，
-          把蜘蛛侠变成了"会讲故事的千年大树"，把小羊羊装扮成"森林里的歌唱仙子"，
-          把小海豚变成了"挥舞数字魔杖的魔法师"，自己则扮演一位走遍天下的小旅人。🎪🍂<br><br>
-          当帷幕拉开，全花狗山的居民都来了——松鼠奇奇、小鹿家族、蝴蝶仙子、青蛙老爷……
-          表演从欢笑到感动，从精彩到震撼，在最后的高潮里，小人人走到台前，
-          摘下帽子，深深鞠了一个躬，大声说：
-          "<strong>花狗山是我们的家，每一个平凡的日子，都值得被认真对待。你们，就是最美的故事！</strong>"
-          台下顿时安静了整整三秒，然后爆发出震耳欲聋的欢呼与掌声——连山顶的雪都被震落了几片。🎉❄️
-        </p>
-      </div>
+      // BUTTON CHECKLIST: (no standalone buttons in this page — gallery images use click handlers above ✓)
+    });
+  </script>
 
-      <!-- 第五章 -->
-      <div class="story-chapter ch-5">
-        <h3><span>🌧️</span> 第五章：一场神奇的小雨</h3>
-        <p>
-          有时候，花狗山会在晴天里突然飘来一阵小雨——阳光和雨滴同时存在，像在梦境里一样。
-          这样的雨，四个朋友叫它"彩虹雨"。<br><br>
-          那天，他们正在溪边读书，雨说来就来，细细的，凉凉的，打在书页上，
-          打在鼻尖上，打在手心里。小羊羊仰起头，让雨滴落进嘴里，笑着说："是甜的！"
-          蜘蛛侠立刻拿出小本子，认真记录雨滴的落点和频率；
-          小海豚在地上画圆圈，研究雨滴涟漪的数学规律；
-          小人人则闭上眼睛，静静地感受，然后说："我要把这场雨写成一首诗，留给以后的自己。"🌦️🌈<br><br>
-          雨过天晴，一道彩虹挂在山谷上空，大得像一座桥，把花狗山的东边连到了西边。
-          四个好朋友并排坐在石头上，谁也没有说话，只是一起静静地看着那道彩虹，
-          心里都明白——这就是花狗山最好的时光。
-        </p>
-      </div>
-
-      <!-- 第六章 -->
-      <div class="story-chapter ch-6">
-        <h3><span>🌙</span> 第六章：月光下的约定</h3>
-        <p>
-          那天夜里，四个朋友爬上花狗山最高的草地，躺下来看星星。
-          月亮把银白色的光倾洒下来，像一张温柔的毯子盖在他们身上，
-          萤火虫在耳边跳着慢慢的舞，远处传来溪水的歌声。<br><br>
-          小羊羊轻声说："我希望花狗山永远这么美，永远有鲜花，永远有朋友。"
-          蜘蛛侠说："我要发现更多新物种，写一本《花狗山自然大百科》，让全世界都知道这里的神奇！"
-          小海豚说："我要用知识解决所有难题，让每一个需要帮助的人都能得到帮助！"
-          小人人看了看天上最亮的那颗星，笑着说：
-          "<strong>我要把我们的故事讲给每一个小朋友听，让他们知道——只要善良、勤奋、爱学习、有好朋友，
-          你就能成为自己心中最闪亮的学霸！</strong>"🌟<br><br>
-          四只小手叠在一起，举向星空，在月光下许下了这个美丽的约定。
-          那一夜，花狗山比任何时候都安静，也比任何时候都明亮。✨🌙
-        </p>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ===== 第3板块：日记 ===== -->
-  <div class="section" id="sectionDiary">
-
-    <div class="card" style="text-align:center; padding:18px 22px; margin-bottom:22px; background:linear-gradient(135deg,rgba(255,200,220,0.92),rgba(200,220,255,0.92));">
-      <h2 style="color:#C2185B; font-size:1.45rem;">📝 花狗山学霸日记本</h2>
-      <p style="color:#666; font-size:0.9rem; margin-top:8px;">每天都有新发现，每天都有新故事！点击人物卡片听他们说话！</p>
-    </div>
-
-    <!-- 日记1 小海豚 -->
-    <div class="diary-entry">
-      <div class="diary-stamp">🌊</div>
-      <div class="diary-author">
-        <div class="diary-avatar">🐬</div>
-        <div>
-          <div class="diary-name" style="color:#0288D1;">小海豚的日记</div>
-          <div class="diary-date">☀️ 花狗山晴天 · 第108天</div>
-        </div>
-      </div>
-      <div class="diary-text">
-        今天在溪边发现了一个有趣的规律：水面的涟漪是一圈圈扩散出去的，
-        就像乘法表里的数字越来越大！我把这个发现告诉了小人人，他说这就是大自然里的数学。
-        我好喜欢数学，因为它能解释所有的美丽。🌊<br><br>
-        下午我们做了小实验：把石子扔进水里，数涟漪的圈数。
-        蜘蛛侠扔得最远，小羊羊笑得最开心。
-        今天还下了一小阵雨，雨滴打在水面上，每一滴都有自己的涟漪，
-        交叠在一起，像一首用数学写的诗。<br><br>
-        <strong style="color:#0288D1;">今日心得：数学不是冰冷的数字，它住在大自然的每个角落，等你去发现。</strong>
-      </div>
-      <img src="https://raw.githubusercontent.com/MikeRuan/ai-camp-assets/main/uploads/76ca12be-8448-4026-b5a3-f782a35771b4.jpg" 
-           alt="小海豚的日记配图" class="diary-img" id="diaryImg1">
-    </div>
-
-    <!-- 日记2 小人人 -->
-    <div class="diary-entry" style="background:linear-gradient(135deg,rgba(255,240,200,0.92),rgba(255,220,200,0.92));">
-      <div class="diary-stamp">🎭</div>
-      <div class="diary-author">
-        <div class="diary-avatar">👦</div>
-        <div>
-          <div class="diary-name" style="color:#E64A19;">小人人的日记</div>
-          <div class="diary-date">🌧️ 花狗山小雨天 · 第203天</div>
-        </div>
-      </div>
-      <div class="diary-text">
-        今天是小雨天，雨滴轻轻敲打着树叶，像一首慢节奏的歌。
-        我们不能出去玩，我就给大家讲了十个故事！
-        讲到第七个的时候，小海豚笑喷了，把草莓汁喷到了蜘蛛侠脸上，
-        蜘蛛侠愣了整整两秒，然后爆发出哈哈大笑。这是我见过的最好笑的场景，没有之一。😂<br><br>
-        晚上我想了很久：为什么故事有这么大的魔力？
-        也许是因为故事里有我们自己，有我们的笑和泪，有我们的梦想和勇气。
-        雨还在下，我在窗边写下这段话，心里暖暖的。<br><br>
-        <strong style="color:#E64A19;">今日心得：用心感受生活，每一天都是值得写下来的好故事。</strong>
-      </div>
-    </div>
-
-    <!-- 日记3 蜘蛛侠 -->
-    <div class="diary-entry" style="background:linear-gradient(135deg,rgba(255,210,210,0.92),rgba(255,230,230,0.92));">
-      <div class="diary-stamp">🔬</div>
-      <div class="diary-author">
-        <div class="diary-avatar">🕷️</div>
-        <div>
-          <div class="diary-name" style="color:#C62828;">蜘蛛侠的日记</div>
-          <div class="diary-date">🌤️ 花狗山微风天 · 第156天</div>
-        </div>
-      </div>
-      <div class="diary-text">
-        今天我独自爬到了花狗山最高的松树顶端，足足用了四十分钟！
-        从那里可以看到整片森林——绿色的海洋一直延伸到天边，风吹过来，树浪翻滚，太壮观了！🌲<br><br>
-        我在树顶编了一张新蛛网，专门用来收集飞过的花粉和种子。
-        今天捕获了七种不同颜色的花粉，还有一粒我从没见过的心形种子！
-        这些小东西里藏着大自然最深的秘密。我要一一记录，
-        将来写一本《花狗山自然大百科》，让所有人都爱上我们的家园。<br><br>
-        <strong style="color:#C62828;">今日心得：好奇心是最好的老师，勇气是探索世界的翅膀。</strong>
-      </div>
-      <img src="https://raw.githubusercontent.com/MikeRuan/ai-camp-assets/main/uploads/73720cd1-9406-4af7-a58f-a49b97327ff1.jpg" 
-           alt="蜘蛛侠的探索" class="diary-img" id="diaryImg2">
-    </div>
-
-    <!-- 日记4 小羊羊 -->
-    <div class="diary-entry" style="background:linear-gradient(135deg,rgba(230,200,255,0.92),rgba(210,230,255,0.92));">
-      <div class="diary-stamp">🎵</div>
-      <div class="diary-author">
-        <div class="diary-avatar">🐑</div>
-        <div>
-          <div class="diary-name" style="color:#7B1FA2;">小羊羊的日记</div>
-          <div class="diary-date">🌈 花狗山雨后彩虹天 · 第299天</div>
-        </div>
-      </div>
-      <div class="diary-text">
-        今天下了一场
+</body>
+</html>
