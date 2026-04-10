@@ -1,847 +1,911 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>校园迷宫大冒险</title>
+<title>花狗山学霸</title>
 <style>
+  /* 全局样式 */
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  
   body {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    display: flex; justify-content: center; align-items: center;
-    min-height: 100vh; font-family: 'Arial', sans-serif;
+    font-family: 'Arial', sans-serif;
+    overflow-x: hidden;
+    background: #87CEEB;
+  }
+
+  /* ===== 天空背景动画 ===== */
+  .sky {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(180deg, #4FC3F7 0%, #81D4FA 40%, #B3E5FC 70%, #E8F5E9 100%);
+    z-index: -10;
+  }
+
+  /* 白云 */
+  .cloud {
+    position: fixed;
+    background: white;
+    border-radius: 50px;
+    opacity: 0.85;
+    animation: floatCloud linear infinite;
+    z-index: -5;
+  }
+  .cloud::before, .cloud::after {
+    content: '';
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+  }
+  .cloud-1 { width:120px; height:40px; top:8%; animation-duration:22s; animation-delay:0s; }
+  .cloud-1::before { width:60px; height:60px; top:-30px; left:15px; }
+  .cloud-1::after  { width:45px; height:45px; top:-20px; left:55px; }
+  .cloud-2 { width:90px; height:30px; top:18%; animation-duration:28s; animation-delay:-8s; }
+  .cloud-2::before { width:50px; height:50px; top:-25px; left:10px; }
+  .cloud-2::after  { width:35px; height:35px; top:-15px; left:45px; }
+  .cloud-3 { width:150px; height:45px; top:5%; animation-duration:35s; animation-delay:-15s; }
+  .cloud-3::before { width:70px; height:70px; top:-35px; left:20px; }
+  .cloud-3::after  { width:55px; height:55px; top:-25px; left:75px; }
+  .cloud-4 { width:80px; height:28px; top:25%; animation-duration:20s; animation-delay:-5s; }
+  .cloud-4::before { width:45px; height:45px; top:-22px; left:8px; }
+  .cloud-4::after  { width:30px; height:30px; top:-14px; left:40px; }
+
+  @keyframes floatCloud {
+    0%   { left: -200px; }
+    100% { left: 110%; }
+  }
+
+  /* 小鸟飞翔 */
+  .bird {
+    position: fixed;
+    font-size: 22px;
+    animation: flyBird linear infinite;
+    z-index: -4;
+    filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.2));
+  }
+  .bird-1 { top: 12%; animation-duration:18s; animation-delay:0s; }
+  .bird-2 { top: 20%; animation-duration:25s; animation-delay:-7s; font-size:16px; }
+  .bird-3 { top: 9%;  animation-duration:30s; animation-delay:-12s; font-size:18px; }
+
+  @keyframes flyBird {
+    0%   { left:-60px; transform:scaleX(1); }
+    100% { left:110%;  transform:scaleX(1); }
+  }
+
+  /* 山脉背景 */
+  .mountains {
+    position: fixed;
+    bottom: 0; left: 0;
+    width: 100%; height: 45%;
+    z-index: -3;
+  }
+  .mountain-back {
+    position: absolute;
+    bottom: 0;
+    width: 0; height: 0;
+    border-style: solid;
+  }
+  .m1 { border-width:0 200px 220px 200px; border-color:transparent transparent #2E7D32 transparent; left:-50px; }
+  .m2 { border-width:0 280px 300px 280px; border-color:transparent transparent #388E3C transparent; left:150px; }
+  .m3 { border-width:0 240px 260px 240px; border-color:transparent transparent #43A047 transparent; left:450px; }
+  .m4 { border-width:0 200px 240px 200px; border-color:transparent transparent #2E7D32 transparent; left:700px; }
+  .m5 { border-width:0 260px 280px 260px; border-color:transparent transparent #1B5E20 transparent; left:900px; }
+  .m6 { border-width:0 220px 250px 220px; border-color:transparent transparent #388E3C transparent; left:1100px; }
+  /* 深林 */
+  .forest {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 35%;
+    background: linear-gradient(180deg, #1B5E20 0%, #2E7D32 50%, #388E3C 100%);
+    border-radius: 40% 60% 0 0 / 20% 20% 0 0;
+  }
+  /* 树木 */
+  .tree {
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .tree-top {
+    width: 0; height: 0;
+    border-left: solid transparent;
+    border-right: solid transparent;
+    border-bottom: solid;
+  }
+  .tree-trunk {
+    background: #5D4037;
+    border-radius: 3px;
+  }
+
+  /* ===== 主容器 ===== */
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 15px 60px;
+  }
+
+  /* ===== 标题区 ===== */
+  .hero {
+    text-align: center;
+    padding: 50px 20px 30px;
+  }
+  .hero-title {
+    font-size: clamp(2.4rem, 8vw, 4rem);
+    color: #fff;
+    text-shadow: 3px 3px 0 #FF69B4, 6px 6px 0 #4CAF50, -2px -2px 0 #2196F3;
+    letter-spacing: 4px;
+    animation: bounceTitle 2s ease-in-out infinite alternate;
+    display: inline-block;
+  }
+  @keyframes bounceTitle {
+    0%   { transform: translateY(0) rotate(-1deg); }
+    100% { transform: translateY(-10px) rotate(1deg); }
+  }
+  .hero-subtitle {
+    margin-top: 12px;
+    font-size: 1.1rem;
+    color: #fff;
+    background: rgba(255,105,180,0.7);
+    display: inline-block;
+    padding: 6px 20px;
+    border-radius: 30px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    letter-spacing: 2px;
+  }
+
+  /* ===== 导航标签 ===== */
+  .nav-tabs {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 20px 0 30px;
+  }
+  .tab-btn {
+    padding: 10px 22px;
+    border: none;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    letter-spacing: 1px;
+  }
+  .tab-btn:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 7px 18px rgba(0,0,0,0.2); }
+  .tab-btn.active { transform: translateY(-4px) scale(1.08); }
+  .tab-btn-1 { background: linear-gradient(135deg,#FF9AA2,#FF69B4); color:#fff; }
+  .tab-btn-2 { background: linear-gradient(135deg,#B5EAD7,#4CAF50); color:#fff; }
+  .tab-btn-3 { background: linear-gradient(135deg,#C7CEEA,#5C6BC0); color:#fff; }
+  .tab-btn-4 { background: linear-gradient(135deg,#FFDAC1,#FF7043); color:#fff; }
+
+  /* ===== 内容区 ===== */
+  .section {
+    display: none;
+    animation: fadeIn 0.5s ease;
+  }
+  .section.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity:0; transform:translateY(20px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  /* ===== 卡片通用样式 ===== */
+  .card {
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(6px);
+    border-radius: 24px;
+    padding: 28px;
+    margin-bottom: 25px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    border: 2px solid rgba(255,255,255,0.6);
+  }
+
+  /* ===== 人物卡片 ===== */
+  .characters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+  }
+  .char-card {
+    background: rgba(255,255,255,0.9);
+    border-radius: 20px;
+    padding: 22px 16px;
+    text-align: center;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    transition: transform 0.3s;
+    cursor: pointer;
+  }
+  .char-card:hover { transform: translateY(-8px) rotate(2deg); }
+  .char-emoji { font-size: 4rem; display: block; margin-bottom: 10px; animation: wobble 3s ease-in-out infinite; }
+  @keyframes wobble {
+    0%,100%{ transform: rotate(0deg); }
+    25%    { transform: rotate(-8deg); }
+    75%    { transform: rotate(8deg); }
+  }
+  .char-name { font-size: 1.2rem; font-weight: bold; margin-bottom: 6px; }
+  .char-role { font-size: 0.85rem; color: #666; margin-bottom: 8px; }
+  .char-traits { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
+  .trait-tag {
+    font-size: 0.72rem;
+    padding: 3px 9px;
+    border-radius: 12px;
+    color: white;
+    font-weight: bold;
+  }
+  .dolphin  { border-top: 5px solid #29B6F6; }
+  .person   { border-top: 5px solid #FF7043; }
+  .spider   { border-top: 5px solid #E53935; }
+  .sheep    { border-top: 5px solid #AB47BC; }
+
+  /* ===== 故事区 ===== */
+  .story-card {
+    position: relative;
     overflow: hidden;
   }
-  #gameContainer {
-    position: relative;
-    width: 600px;
-    height: 620px;
-  }
-  #gameCanvas {
-    position: absolute;
-    top: 0; left: 0;
-    z-index: 1;
-    border-radius: 16px;
-    border: 4px solid #fff;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    display: none;
-  }
-  /* Start Screen */
-  #startScreen {
-    position: relative;
-    z-index: 100;
-    width: 600px;
-    height: 620px;
-    background: linear-gradient(160deg, #fff9c4, #ffe082, #ffcc80);
-    border-radius: 16px;
-    border: 4px solid #fff;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    pointer-events: auto;
-  }
-  .title-emoji { font-size: 64px; margin-bottom: 10px; animation: bounce 1s infinite alternate; }
-  @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-12px); } }
-  .game-title { font-size: 32px; font-weight: bold; color: #5c35a0; text-shadow: 2px 2px 0 #fff; margin-bottom: 8px; }
-  .game-subtitle { font-size: 16px; color: #7b5ea7; margin-bottom: 24px; }
-  .rules-box {
+  .story-chapter {
+    margin-bottom: 30px;
+    padding: 22px;
+    border-radius: 18px;
+    border-left: 6px solid;
     background: rgba(255,255,255,0.7);
-    border-radius: 12px; padding: 16px 24px;
-    margin-bottom: 28px; text-align: left;
-    font-size: 14px; color: #444; line-height: 2;
-    border: 2px dashed #ffb300;
   }
-  .rules-box span { font-size: 18px; }
-  #startBtn {
-    background: linear-gradient(135deg, #43e97b, #38f9d7);
-    color: #fff; border: none; border-radius: 50px;
-    padding: 16px 48px; font-size: 22px; font-weight: bold;
-    cursor: pointer; box-shadow: 0 4px 20px rgba(56,249,215,0.5);
-    transition: transform 0.1s, box-shadow 0.1s;
-    pointer-events: auto;
+  .story-chapter h3 {
+    font-size: 1.25rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
-  #startBtn:hover { transform: scale(1.07); box-shadow: 0 6px 28px rgba(56,249,215,0.7); }
-  /* HUD */
-  #hud {
+  .story-chapter p {
+    line-height: 1.9;
+    color: #333;
+    font-size: 0.97rem;
+  }
+  .ch-1 { border-color: #FF69B4; }
+  .ch-2 { border-color: #4CAF50; }
+  .ch-3 { border-color: #2196F3; }
+  .ch-4 { border-color: #FF7043; }
+  .ch-5 { border-color: #AB47BC; }
+
+  /* ===== 日记区 ===== */
+  .diary-entry {
+    background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,240,250,0.9));
+    border-radius: 18px;
+    padding: 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    position: relative;
+  }
+  .diary-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .diary-avatar { font-size: 2.2rem; }
+  .diary-name { font-weight: bold; font-size: 1.05rem; }
+  .diary-date { font-size: 0.8rem; color: #999; }
+  .diary-text { line-height: 1.85; color: #444; font-size: 0.95rem; }
+  .diary-stamp {
     position: absolute;
-    top: 0; left: 0;
-    width: 600px; height: 50px;
-    z-index: 50;
-    display: none;
-    align-items: center; justify-content: space-between;
-    padding: 0 16px;
-    background: rgba(92,53,160,0.92);
-    border-radius: 12px 12px 0 0;
-    border-bottom: 3px solid #fff;
+    top: 16px; right: 18px;
+    font-size: 2rem;
+    opacity: 0.5;
+    transform: rotate(15deg);
   }
-  .hud-item { color: #fff; font-size: 16px; font-weight: bold; }
-  /* Overlay screens */
-  .overlay {
-    position: absolute;
-    top: 0; left: 0;
-    width: 600px; height: 620px;
-    z-index: 200;
-    display: none;
-    flex-direction: column;
-    align-items: center; justify-content: center;
-    border-radius: 12px;
-    pointer-events: auto;
+
+  /* ===== 学习板块 ===== */
+  .study-section h2 {
+    text-align: center;
+    font-size: 1.6rem;
+    color: #2E7D32;
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
   }
-  #winScreen { background: rgba(67,233,123,0.95); }
-  #loseScreen { background: rgba(255,80,80,0.95); }
-  #levelScreen { background: rgba(255,210,50,0.95); }
-  .overlay-emoji { font-size: 72px; margin-bottom: 16px; }
-  .overlay-title { font-size: 36px; font-weight: bold; color: #fff; text-shadow: 2px 2px 0 rgba(0,0,0,0.2); margin-bottom: 12px; }
-  .overlay-msg { font-size: 18px; color: #fff; margin-bottom: 28px; text-align: center; }
-  .overlay-btn {
-    background: #fff; border: none; border-radius: 50px;
-    padding: 14px 40px; font-size: 20px; font-weight: bold;
-    cursor: pointer; margin: 6px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-    transition: transform 0.1s;
-    pointer-events: auto;
+  .tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
   }
-  .overlay-btn:hover { transform: scale(1.07); }
-  #winScreen .overlay-btn { color: #43e97b; }
-  #loseScreen .overlay-btn { color: #ff5050; }
-  #levelScreen .overlay-btn { color: #e67e00; }
+  .tip-card {
+    padding: 20px;
+    border-radius: 18px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    transition: transform 0.3s;
+  }
+  .tip-card:hover { transform: scale(1.05); }
+  .tip-card .tip-icon { font-size: 2.5rem; margin-bottom: 10px; }
+  .tip-card h4 { font-size: 1rem; margin-bottom: 8px; }
+  .tip-card p  { font-size: 0.82rem; opacity: 0.92; line-height: 1.6; }
+  .tip-1 { background: linear-gradient(135deg,#FF9AA2,#FF69B4); }
+  .tip-2 { background: linear-gradient(135deg,#85E89D,#2ECC71); }
+  .tip-3 { background: linear-gradient(135deg,#79B8FF,#2196F3); }
+  .tip-4 { background: linear-gradient(135deg,#FFCC80,#FF7043); }
+  .tip-5 { background: linear-gradient(135deg,#CE93D8,#AB47BC); }
+  .tip-6 { background: linear-gradient(135deg,#80DEEA,#00ACC1); }
+
+  /* 名言横幅 */
+  .quote-banner {
+    background: linear-gradient(135deg, #FF69B4, #FF9800, #4CAF50, #2196F3);
+    background-size: 300% 300%;
+    animation: gradientShift 5s ease infinite;
+    border-radius: 18px;
+    padding: 22px 26px;
+    color: white;
+    text-align: center;
+    margin-bottom: 22px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+  }
+  @keyframes gradientShift {
+    0%  { background-position:0% 50%; }
+    50% { background-position:100% 50%; }
+    100%{ background-position:0% 50%; }
+  }
+  .quote-banner p { font-size: 1.15rem; font-weight: bold; letter-spacing: 1px; line-height: 1.7; }
+
+  /* ===== 页脚 ===== */
+  .footer {
+    text-align: center;
+    padding: 25px;
+    color: rgba(255,255,255,0.9);
+    font-size: 0.9rem;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+  }
+
+  /* ===== 漂浮花朵装饰 ===== */
+  .petal {
+    position: fixed;
+    font-size: 20px;
+    animation: petalFall linear infinite;
+    z-index: -2;
+    opacity: 0.7;
+  }
+  @keyframes petalFall {
+    0%   { top: -30px; transform: rotate(0deg) translateX(0); opacity:0.7; }
+    50%  { transform: rotate(180deg) translateX(30px); }
+    100% { top: 110vh; transform: rotate(360deg) translateX(-20px); opacity:0; }
+  }
+
+  /* ===== 响应式 ===== */
+  @media (max-width: 600px) {
+    .hero-title { font-size: 2rem; }
+    .card { padding: 18px; }
+    .characters-grid { grid-template-columns: 1fr 1fr; }
+  }
 </style>
 </head>
 <body>
-<div id="gameContainer">
-  <!-- Start Screen -->
-  <div id="startScreen">
-    <div class="title-emoji">🏫</div>
-    <div class="game-title">校园迷宫大冒险</div>
-    <div class="game-subtitle">找到钥匙，打开图书馆的大门！</div>
-    <div class="rules-box">
-      <span>🗝️</span> 收集 <b>5 把钥匙</b>才能开门<br>
-      <span>👨‍🏫</span> 碰到老师会扣 <b>1 条命</b>（共 3 条）<br>
-      <span>⬆️⬇️⬅️➡️</span> 用 <b>方向键</b> 控制移动<br>
-      <span>🚪</span> 集齐钥匙后走向 <b>终点门</b> 通关<br>
-      <span>🏆</span> 共 <b>3 关</b>，越来越难！
+
+<!-- 天空背景 -->
+<div class="sky"></div>
+
+<!-- 白云 -->
+<div class="cloud cloud-1"></div>
+<div class="cloud cloud-2"></div>
+<div class="cloud cloud-3"></div>
+<div class="cloud cloud-4"></div>
+
+<!-- 小鸟 -->
+<div class="bird bird-1">🐦</div>
+<div class="bird bird-2">🐤</div>
+<div class="bird bird-3">🦋</div>
+
+<!-- 飘落花朵 -->
+<div class="petal" style="left:10%; animation-duration:8s; animation-delay:0s;">🌸</div>
+<div class="petal" style="left:25%; animation-duration:11s; animation-delay:-3s;">🌺</div>
+<div class="petal" style="left:45%; animation-duration:9s; animation-delay:-6s;">🌼</div>
+<div class="petal" style="left:65%; animation-duration:13s; animation-delay:-1s;">🌸</div>
+<div class="petal" style="left:80%; animation-duration:7s; animation-delay:-9s;">🍀</div>
+<div class="petal" style="left:55%; animation-duration:14s; animation-delay:-4s;">🌺</div>
+
+<!-- 山脉 -->
+<div class="mountains">
+  <div class="mountain-back m1"></div>
+  <div class="mountain-back m2"></div>
+  <div class="mountain-back m3"></div>
+  <div class="mountain-back m4"></div>
+  <div class="mountain-back m5"></div>
+  <div class="mountain-back m6"></div>
+  <div class="forest"></div>
+</div>
+
+<!-- 主内容 -->
+<div class="container">
+
+  <!-- 标题 -->
+  <div class="hero">
+    <div class="hero-title">🌸 花狗山学霸 🌸</div>
+    <div class="hero-subtitle">✨ 善良·好学·活泼·有趣 ✨</div>
+  </div>
+
+  <!-- 导航标签 -->
+  <div class="nav-tabs">
+    <button class="tab-btn tab-btn-1 active" id="tabCharacters">🐬 认识朋友们</button>
+    <button class="tab-btn tab-btn-2" id="tabStory">📖 精彩故事</button>
+    <button class="tab-btn tab-btn-3" id="tabDiary">📝 学霸日记</button>
+    <button class="tab-btn tab-btn-4" id="tabStudy">🌟 学习秘籍</button>
+  </div>
+
+  <!-- ===== 第1板块：人物介绍 ===== -->
+  <div class="section active" id="sectionCharacters">
+    <div class="card">
+      <div style="text-align:center; margin-bottom:22px;">
+        <h2 style="font-size:1.5rem; color:#E91E63;">🏔️ 花狗山的神奇精灵们</h2>
+        <p style="color:#666; margin-top:8px; font-size:0.95rem;">在云雾缭绕的花狗山深处，住着四位特别的小精灵。<br>他们善良、聪明、爱学习，是全山最受欢迎的学霸！</p>
+      </div>
+      <div class="characters-grid">
+
+        <!-- 小海豚 -->
+        <div class="char-card dolphin">
+          <span class="char-emoji">🐬</span>
+          <div class="char-name" style="color:#0288D1;">小海豚</div>
+          <div class="char-role">数学天才 · 游泳健将</div>
+          <div class="char-traits">
+            <span class="trait-tag" style="background:#29B6F6;">聪明</span>
+            <span class="trait-tag" style="background:#4FC3F7;">温柔</span>
+            <span class="trait-tag" style="background:#0288D1;">勤奋</span>
+          </div>
+          <p style="font-size:0.8rem; color:#555; margin-top:10px; line-height:1.6;">
+            喜欢在山间溪流里畅游，用数学解决所有难题。最爱在雨天翻滚！
+          </p>
+        </div>
+
+        <!-- 小人人 -->
+        <div class="char-card person">
+          <span class="char-emoji">👦</span>
+          <div class="char-name" style="color:#E64A19;">小人人</div>
+          <div class="char-role">文学达人 · 故事大王</div>
+          <div class="char-traits">
+            <span class="trait-tag" style="background:#FF7043;">活泼</span>
+            <span class="trait-tag" style="background:#FF8A65;">创意</span>
+            <span class="trait-tag" style="background:#E64A19;">勇敢</span>
+          </div>
+          <p style="font-size:0.8rem; color:#555; margin-top:10px; line-height:1.6;">
+            脑子里装满了奇妙故事，走到哪里都能让朋友们开怀大笑！
+          </p>
+        </div>
+
+        <!-- 蜘蛛侠 -->
+        <div class="char-card spider">
+          <span class="char-emoji">🕷️</span>
+          <div class="char-name" style="color:#C62828;">蜘蛛侠</div>
+          <div class="char-role">科学探索家 · 护林英雄</div>
+          <div class="char-traits">
+            <span class="trait-tag" style="background:#E53935;">正义</span>
+            <span class="trait-tag" style="background:#EF5350;">机智</span>
+            <span class="trait-tag" style="background:#C62828;">坚强</span>
+          </div>
+          <p style="font-size:0.8rem; color:#555; margin-top:10px; line-height:1.6;">
+            用蛛网收集树叶标本，保护花狗山的每一朵小花。最爱研究昆虫！
+          </p>
+        </div>
+
+        <!-- 小羊羊 -->
+        <div class="char-card sheep">
+          <span class="char-emoji">🐑</span>
+          <div class="char-name" style="color:#7B1FA2;">小羊羊</div>
+          <div class="char-role">音乐天使 · 善心使者</div>
+          <div class="char-traits">
+            <span class="trait-tag" style="background:#AB47BC;">善良</span>
+            <span class="trait-tag" style="background:#BA68C8;">温暖</span>
+            <span class="trait-tag" style="background:#7B1FA2;">努力</span>
+          </div>
+          <p style="font-size:0.8rem; color:#555; margin-top:10px; line-height:1.6;">
+            每天早晨用美妙歌声叫醒花狗山，帮助所有迷路的小动物回家！
+          </p>
+        </div>
+
+      </div>
     </div>
-    <button id="startBtn">🎮 游戏开始</button>
+
+    <!-- 花狗山介绍 -->
+    <div class="card" style="background:linear-gradient(135deg,rgba(200,255,220,0.9),rgba(200,240,255,0.9));">
+      <h3 style="color:#2E7D32; font-size:1.3rem; margin-bottom:14px;">🏔️ 花狗山是什么地方？</h3>
+      <p style="line-height:1.9; color:#333; font-size:0.96rem;">
+        花狗山坐落在云雾之间，山顶常年飘着五颜六色的云朵。山上有会唱歌的泉水、会跳舞的树木、还有数不清的奇花异草。
+        这里是精灵们的乐园，也是知识的宝库。每当夜晚降临，月亮会把银光洒在山间的图书馆里，
+        小精灵们就在那里读书、讨论、一起探索世界的奥秘。🌙✨
+      </p>
+      <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:16px;">
+        <span style="background:#A5D6A7; color:#1B5E20; padding:6px 14px; border-radius:20px; font-size:0.85rem; font-weight:bold;">🌸 满山鲜花</span>
+        <span style="background:#81D4FA; color:#01579B; padding:6px 14px; border-radius:20px; font-size:0.85rem; font-weight:bold;">💧 清澈溪流</span>
+        <span style="background:#FFE082; color:#E65100; padding:6px 14px; border-radius:20px; font-size:0.85rem; font-weight:bold;">📚 神奇图书馆</span>
+        <span style="background:#F48FB1; color:#880E4F; padding:6px 14px; border-radius:20px; font-size:0.85rem; font-weight:bold;">🌙 月光课堂</span>
+        <span style="background:#CE93D8; color:#4A148C; padding:6px 14px; border-radius:20px; font-size:0.85rem; font-weight:bold;">🦋 蝴蝶精灵</span>
+      </div>
+    </div>
   </div>
 
-  <!-- HUD (lives, keys, level) -->
-  <div id="hud">
-    <div class="hud-item" id="hudLevel">第 1 关</div>
-    <div class="hud-item" id="hudKeys">🗝️ 0 / 5</div>
-    <div class="hud-item" id="hudLives">❤️ 3</div>
+  <!-- ===== 第2板块：故事 ===== -->
+  <div class="section" id="sectionStory">
+
+    <div class="quote-banner">
+      <p>📖 "每一个故事，都是花狗山送给世界的礼物。"<br>
+         —— 花狗山学霸们</p>
+    </div>
+
+    <div class="card story-card">
+
+      <!-- 第一章 -->
+      <div class="story-chapter ch-1">
+        <h3><span>🌸</span> 第一章：花狗山的清晨</h3>
+        <p>
+          太阳刚刚爬上花狗山的山顶，金色的光芒把整片森林染成了橙红色。小羊羊早早起床，
+          站在最高的石头上，对着山谷唱起了今天的第一首歌：
+          "花狗山的早晨多美好，溪水在笑，小鸟在跑，朋友们快快起来吧！"🎵<br><br>
+          不一会儿，小海豚从溪流里一跃而出，水珠飞溅，在阳光下变成了彩虹。
+          "小羊羊！今天的数学题我又想出新解法了！"小海豚兴奋地喊道。
+          小人人从树屋的窗户探出脑袋，头发乱得像鸟巢一样，
+          哈欠连天地说："等等我！我昨晚写了一个超级好笑的故事要讲给你们听！"🐬👦
+        </p>
+      </div>
+
+      <!-- 第二章 -->
+      <div class="story-chapter ch-2">
+        <h3><span>🕸️</span> 第二章：蜘蛛侠的大发现</h3>
+        <p>
+          这天下午，蜘蛛侠在林子深处爬来爬去，突然发现了一片从未见过的蓝色蘑菇！
+          蘑菇在阳光下闪闪发光，像一群蓝色的小灯泡。
+          "哇！这一定是花狗山的新物种！"蜘蛛侠激动得差点从树上掉下来。🍄✨<br><br>
+          他飞快地用蛛网编了一个小篮子，轻轻采了几朵，跑去找朋友们分享。
+          小海豚说要研究蘑菇里的化学成分，小人人立刻编了一首关于蓝蘑菇的歌，
+          小羊羊则温柔地说："我们研究完再把它们种回去，让它们继续在山里快乐生长！" 
+          大家都点点头，眼睛里闪着善良的光。
+        </p>
+      </div>
+
+      <!-- 第三章 -->
+      <div class="story-chapter ch-3">
+        <h3><span>🌊</span> 第三章：小海豚的数学魔法</h3>
+        <p>
+          有一天，花狗山来了一场罕见的大雨，山间小路变成了小河。
+          住在山脚下的小松鼠一家被困住了，回不了家！小松鼠妈妈抱着孩子在石头上着急地哭泣。<br><br>
+          小海豚跳进水里，很快游过来。她用数学飞快地计算水流速度和方向，
+          指挥大家用石头和倒下的树枝，搭了一座临时小桥！🌉
+          "根据水流速度每秒0.8米，桥需要承重约20千克，用这根大树干正好！"
+          小海豚自信地说。小松鼠一家安全过桥，感动地说："花狗山的学霸真了不起！"
+        </p>
+      </div>
+
+      <!-- 第四章 -->
+      <div class="story-chapter ch-4">
+        <h3><span>🎭</span> 第四章：小人人的故事表演</h3>
+        <p>
+          秋天来了，花狗山举办了一年一度的"故事节"。小人人决定表演一出大戏，
+          他用树叶做帽子，用花朵做围裙，把蜘蛛侠变成了一棵"会讲故事的大树"，
+          把小羊羊扮成了"森林里的歌唱仙子"，把小海豚变成了"数字魔法师"。🎪<br><br>
+          表演开始了，全花狗山的动物都来看——松鼠、小鹿、兔子、蝴蝶……
+          大家笑声连连，掌声不断。最后小人人大声说：
+          "花狗山是我们的家，每一个平凡的日子，都是最美的故事！"
+          台下顿时安静了一秒，然后爆发出震耳欲聋的欢呼！🎉
+        </p>
+      </div>
+
+      <!-- 第五章 -->
+      <div class="story-chapter ch-5">
+        <h3><span>🌙</span> 第五章：月光下的约定</h3>
+        <p>
+          那天夜里，四个朋友躺在山顶的草地上，看着满天星星。
+          月亮把银白色的光倾洒下来，萤火虫在他们身边跳舞。<br><br>
+          小羊羊轻声说："我希望花狗山永远这么美。"
+          蜘蛛侠说："我要发现更多新物种，让全世界都知道花狗山的神奇！"
+          小海豚说："我要用知识解决所有难题，让大家的生活更幸福！"
+          小人人笑着说："我要把我们的故事讲给每一个小朋友听，让他们知道——
+          <strong>只要善良、勤奋、爱学习，你也可以成为自己心中的学霸！</strong>"🌟<br><br>
+          四只小手叠在一起，在月光下许下了这个美丽的约定。✨
+        </p>
+      </div>
+
+    </div>
   </div>
 
-  <!-- Canvas -->
-  <canvas id="gameCanvas" width="600" height="620"></canvas>
+  <!-- ===== 第3板块：日记 ===== -->
+  <div class="section" id="sectionDiary">
 
-  <!-- Level Clear Screen -->
-  <div class="overlay" id="levelScreen">
-    <div class="overlay-emoji">🎉</div>
-    <div class="overlay-title" id="levelTitle">第 1 关通过！</div>
-    <div class="overlay-msg" id="levelMsg">太棒了！准备好下一关了吗？</div>
-    <button class="overlay-btn" id="nextLevelBtn">下一关 ▶</button>
+    <div class="card" style="text-align:center; padding:16px 20px; margin-bottom:20px; background:linear-gradient(135deg,rgba(255,200,220,0.9),rgba(200,220,255,0.9));">
+      <h2 style="color:#C2185B; font-size:1.4rem;">📝 花狗山学霸日记本</h2>
+      <p style="color:#666; font-size:0.9rem; margin-top:6px;">每天都有新发现，每天都有新故事！</p>
+    </div>
+
+    <!-- 日记1 -->
+    <div class="diary-entry">
+      <div class="diary-stamp">🌊</div>
+      <div class="diary-author">
+        <div class="diary-avatar">🐬</div>
+        <div>
+          <div class="diary-name" style="color:#0288D1;">小海豚的日记</div>
+          <div class="diary-date">🌸 花狗山晴天 · 第108天</div>
+        </div>
+      </div>
+      <div class="diary-text">
+        今天在溪边发现了一个有趣的规律：水面的涟漪是一圈圈扩散出去的，
+        就像乘法表里的数字越来越大！我把这个发现告诉了小人人，
+        他说这就是大自然里的数学。我好喜欢数学，因为它能解释所有的美丽。🌊<br><br>
+        下午我们一起做了一个小实验：把石子扔进水里，数涟漪的圈数。
+        蜘蛛侠扔得最远，小羊羊笑得最开心。
+        <strong>今日心得：数学不是冰冷的数字，它住在大自然的每个角落。</strong>
+      </div>
+    </div>
+
+    <!-- 日记2 -->
+    <div class="diary-entry" style="background:linear-gradient(135deg,rgba(255,240,200,0.9),rgba(255,220,200,0.9));">
+      <div class="diary-stamp">🎭</div>
+      <div class="diary-author">
+        <div class="diary-avatar">👦</div>
+        <div>
+          <div class="diary-name" style="color:#E64A19;">小人人的日记</div>
+          <div class="diary-date">☁️ 花狗山多云 · 第203天</div>
+        </div>
+      </div>
+      <div class="diary-text">
+        今天雨天，我们不能出去玩，我就给大家讲了十个故事！
+        讲到第七个的时候，小海豚笑喷了，把草莓汁喷到了蜘蛛侠脸上，
+        蜘蛛侠愣了两秒，然后也哈哈大笑。这是我今天见过的最好笑的场景。😂<br><br>
+        晚上我想了很久：为什么故事有这么大的魔力？
+        也许是因为故事里有我们自己，有我们的笑和泪，有我们的梦想。
+        <strong>今日心得：用心感受生活，每一天都是值得写下来的好故事。</strong>
+      </div>
+    </div>
+
+    <!-- 日记3 -->
+    <div class="diary-entry" style="background:linear-gradient(135deg,rgba(255,210,210,0.9),rgba(255,230,230,0.9));">
+      <div class="diary-stamp">🔬</div>
+      <div class="diary-author">
+        <div class="diary-avatar">🕷️</div>
+        <div>
+          <div class="diary-name" style="color:#C62828;">蜘蛛侠的日记</div>
+          <div class="diary-date">🌤️ 花狗山微风 · 第156天</div>
+        </div>
+      </div>
+      <div class="diary-text">
+        今天我独自爬到了花狗山最高的松树顶端，从那里可以看到整片森林。
+        绿色的海洋一直延伸到天边，风吹过来，树浪翻滚，太壮观了！🌲<br><br>
+        我在树顶编了一张新蛛网，用来收集飞过的花粉和种子。
+        这些小东西里藏着大自然的秘密。我要一一记录下来，
+        将来写一本《花狗山自然大百科》，让所有人都爱上我们的家园。
+        <strong>今日心得：好奇心是最好的老师，勇气是探索的翅膀。</strong>
+      </div>
+    </div>
+
+    <!-- 日记4 -->
+    <div class="diary-entry" style="background:linear-gradient(135deg,rgba(230,200,255,0.9),rgba(210,230,255,0.9));">
+      <div class="diary-stamp">🎵</div>
+      <div class="diary-author">
+        <div class="diary-avatar">🐑</div>
+        <div>
+          <div class="diary-name" style="color:#7B1FA2;">小羊羊的日记</div>
+          <div class="diary-date">🌙 花狗山星光夜 · 第299天</div>
+        </div>
+      </div>
+      <div class="diary-text">
+        今天帮助了一只迷路的小松鼠找到了回家的路，他叫奇奇，只有三岁，
+        一个人在林子里哭泣。我唱了一首歌给他听，他就不哭了，
+        然后我们一起找到了他的妈妈。松鼠妈妈紧紧抱住奇奇，那一幕我永远不会忘记。🐿️❤️<br><br>
+        帮助别人的感觉真的很美妙，比收到礼物还要开心一百倍。
+        我想每天都能帮到一个人，哪怕只是一个微笑、一首歌。
+        <strong>今日心得：善良是最美的才华，帮助别人是最大的快乐。</strong>
+      </div>
+    </div>
+
   </div>
 
-  <!-- Win Screen -->
-  <div class="overlay" id="winScreen">
-    <div class="overlay-emoji">🏆</div>
-    <div class="overlay-title">恭喜通关！</div>
-    <div class="overlay-msg">你收集了所有钥匙，打开了图书馆大门！<br>你是真正的校园小英雄！🌟</div>
-    <button class="overlay-btn" id="restartFromWinBtn">再玩一次 🔄</button>
+  <!-- ===== 第4板块：学习秘籍 ===== -->
+  <div class="section study-section" id="sectionStudy">
+
+    <div class="quote-banner">
+      <p>🌟 "学习不是负担，是探索世界的超级能力！"<br>
+         🐬 小海豚 · 👦 小人人 · 🕷️ 蜘蛛侠 · 🐑 小羊羊</p>
+    </div>
+
+    <div class="card">
+      <h2>📚 花狗山学霸的秘密武器</h2>
+      <div class="tips-grid">
+        <div class="tip-card tip-1">
+          <div class="tip-icon">💡</div>
+          <h4>好奇心第一！</h4>
+          <p>小海豚说：对什么都感到好奇，提问题是学习的开始！看到涟漪就想到数学！</p>
+        </div>
+        <div class="tip-card tip-2">
+          <div class="tip-icon">📖</div>
+          <h4>每天读一本书</h4>
+          <p>小人人说：书里有无数世界，每天读一点点，积累起来就是大海！</p>
+        </div>
+        <div class="tip-card tip-3">
+          <div class="tip-icon">🔬</div>
+          <h4>动手去实验</h4>
+          <p>蜘蛛侠说：光看不够，要亲手试试！失败了也没关系，那是学习的礼物！</p>
+        </div>
+        <div class="tip-card tip-4">
+          <div class="tip-icon">🎵</div>
+          <h4>劳逸结合</h4>
+          <p>小羊羊说：学习之后要唱歌、玩耍、休息，快乐的大脑学得更好！</p>
+        </div>
+        <div class="tip-card tip-5">
+          <div class="tip-icon">👥</div>
+          <h4>一起学习</h4>
+          <p>四个人说：和朋友一起学，遇到难题互相帮助，学习效率翻倍！</p>
+        </div>
+        <div class="tip-card tip-6">
+          <div class="tip-icon">🌱</div>
+          <h4>坚持就是胜利</h4>
+          <p>花狗山说：每天进步一点点，坚持下去，你就是未来的学霸！</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 学科对应人物 -->
+    <div class="card" style="background:linear-gradient(135deg,rgba(240,255,240,0.9),rgba(240,240,255,0.9));">
+      <h2 style="text-align:center; color:#1565C0; font-size:1.3rem; margin-bottom:18px;">🎓 谁来教你哪一科？</h2>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px;">
+        <div style="background:rgba(3,169,244,0.15); border-radius:16px; padding:16px; text-align:center; border:2px solid #29B6F6;">
+          <div style="font-size:2rem;">🐬</div>
+          <div style="font-weight:bold; color:#0277BD; margin:6px 0;">小海豚</div>
+          <div style="font-size:0.85rem; color:#555;">数学 · 物理 · 逻辑思维</div>
+        </div>
+        <div style="background:rgba(255,112,67,0.15); border-radius:16px; padding:16px; text-align:center; border:2px solid #FF7043;">
+          <div style="font-size:2rem;">👦</div>
+          <div style="font-weight:bold; color:#E64A19; margin:6px 0;">小人人</div>
+          <div style="font-size:0.85rem; color:#555;">语文 · 写作 · 历史故事</div>
+        </div>
+        <div style="background:rgba(229,57,53,0.15); border-radius:16px; padding:16px; text-align:center; border:2px solid #E53935;">
+          <div style="font-size:2rem;">🕷️</div>
+          <div style="font-weight:bold; color:#C62828; margin:6px 0;">蜘蛛侠</div>
+          <div style="font-size:0.85rem; color:#555;">科学 · 生物 · 自然探索</div>
+        </div>
+        <div style="background:rgba(171,71,188,0.15); border-radius:16px; padding:16px; text-align:center; border:2px solid #AB47BC;">
+          <div style="font-size:2rem;">🐑</div>
+          <div style="font-weight:bold; color:#7B1FA2; margin:6px 0;">小羊羊</div>
+          <div style="font-size:0.85rem; color:#555;">音乐 · 艺术 · 品德修养</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 激励横幅 -->
+    <div class="card" style="text-align:center; background:linear-gradient(135deg,rgba(255,220,230,0.9),rgba(220,240,255,0.9));">
+      <div style="font-size:3rem; margin-bottom:12px; animation:bounceTitle 2s ease-in-out infinite alternate; display:inline-block;">🏆</div>
+      <h3 style="color:#C2185B; font-size:1.3rem; margin-bottom:12px;">你也可以是学霸！</h3>
+      <p style="color:#444; line-height:1.9; font-size:0.95rem;">
+        花狗山的学霸们不是因为天生聪明，<br>
+        而是因为他们<strong style="color:#E91E63;">爱学习、不怕难、有朋友、善待人</strong>。<br>
+        只要你也这样做，<br>
+        <strong style="color:#2E7D32; font-size:1.05rem;">你就是自己世界里的学霸！✨🌸</strong>
+      </p>
+    </div>
+
   </div>
 
-  <!-- Lose Screen -->
-  <div class="overlay" id="loseScreen">
-    <div class="overlay-emoji">😵</div>
-    <div class="overlay-title">游戏结束！</div>
-    <div class="overlay-msg" id="loseMsg">被老师发现了……下次要小心哦！</div>
-    <button class="overlay-btn" id="restartFromLoseBtn">重新开始 🔄</button>
-  </div>
+</div>
+
+<!-- 页脚 -->
+<div class="footer">
+  🌸 花狗山学霸 · 善良·好学·活泼·有趣 🌸<br>
+  <span style="font-size:0.8rem; opacity:0.8;">🐬 小海豚 · 👦 小人人 · 🕷️ 蜘蛛侠 · 🐑 小羊羊 永远在花狗山等你！</span>
 </div>
 
 <script>
+// 等待页面加载完毕再执行所有代码
 document.addEventListener('DOMContentLoaded', function() {
-  // ============================================================
-  //  DOM References
-  // ============================================================
-  const startScreen   = document.getElementById('startScreen');
-  const hud           = document.getElementById('hud');
-  const canvas        = document.getElementById('gameCanvas');
-  const ctx           = canvas.getContext('2d');
-  const hudLevel      = document.getElementById('hudLevel');
-  const hudKeys       = document.getElementById('hudKeys');
-  const hudLives      = document.getElementById('hudLives');
-  const levelScreen   = document.getElementById('levelScreen');
-  const levelTitle    = document.getElementById('levelTitle');
-  const levelMsg      = document.getElementById('levelMsg');
-  const winScreen     = document.getElementById('winScreen');
-  const loseScreen    = document.getElementById('loseScreen');
 
-  // ============================================================
-  //  Constants
-  // ============================================================
-  const TILE  = 40;          // tile size in pixels
-  const COLS  = 15;          // map columns
-  const ROWS  = 14;          // map rows (560px) + 50px HUD = 610 ≈ 620
-  const CANVAS_W = 600;
-  const CANVAS_H = 620;
-  const HUD_H = 50;
+  // ===== 标签切换功能 =====
+  var tabCharacters = document.getElementById('tabCharacters');
+  var tabStory      = document.getElementById('tabStory');
+  var tabDiary      = document.getElementById('tabDiary');
+  var tabStudy      = document.getElementById('tabStudy');
 
-  // Tile types
-  const T_EMPTY = 0;
-  const T_WALL  = 1;
-  const T_KEY   = 2;
-  const T_DOOR  = 3;
-  const T_SIGN  = 4;
+  var sectionCharacters = document.getElementById('sectionCharacters');
+  var sectionStory      = document.getElementById('sectionStory');
+  var sectionDiary      = document.getElementById('sectionDiary');
+  var sectionStudy      = document.getElementById('sectionStudy');
 
-  // ============================================================
-  //  Level Map Definitions
-  //  15 cols × 14 rows  (1=wall, 0=floor, 2=key, 3=door, 4=sign)
-  // ============================================================
-  const LEVELS = [
-    // ---- Level 1 ----
-    {
-      map: [
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
-        [1,0,1,1,0,0,1,0,1,1,1,0,1,0,1],
-        [1,2,1,0,0,1,0,0,0,0,1,0,1,0,1],
-        [1,0,0,0,1,1,1,1,0,0,0,0,0,2,1],
-        [1,0,1,0,0,0,0,0,0,1,1,1,1,0,1],
-        [1,0,1,1,1,0,1,1,0,0,0,0,1,0,1],
-        [1,2,0,0,1,0,0,1,0,1,0,0,0,0,1],
-        [1,0,1,0,0,0,1,0,0,1,1,1,0,1,1],
-        [1,0,1,1,0,1,1,0,0,0,0,1,0,2,1],
-        [1,0,0,0,0,0,0,0,1,1,0,0,0,0,1],
-        [1,1,1,0,1,1,0,1,1,0,0,1,1,0,1],
-        [1,0,0,0,0,2,0,0,0,0,1,0,0,3,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-      ],
-      playerStart: {col:1, row:1},
-      teachers: [
-        { col:7, row:1, dx:1, dy:0, steps:0, maxSteps:4 },
-        { col:3, row:6, dx:0, dy:1, steps:0, maxSteps:3 },
-      ],
-      signTexts: { '4,12':'前方有钥匙！', '10,3':'小心老师！' }
-    },
-    // ---- Level 2 ----
-    {
-      map: [
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,0,0,0,1,0,0,0,0,0,1,0,0,0,1],
-        [1,0,1,0,1,0,1,1,1,0,1,0,1,0,1],
-        [1,2,1,0,0,0,0,0,1,0,0,0,1,2,1],
-        [1,0,1,1,1,1,1,0,1,1,1,0,1,0,1],
-        [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
-        [1,1,1,0,1,0,1,1,0,1,1,1,1,0,1],
-        [1,0,0,0,1,2,0,0,0,1,0,0,0,0,1],
-        [1,0,1,1,1,0,1,0,1,1,0,1,1,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
-        [1,1,0,1,1,1,0,1,1,0,1,0,0,2,1],
-        [1,0,0,0,0,0,0,0,0,0,1,0,1,0,1],
-        [1,2,1,1,1,0,1,1,0,0,0,0,0,3,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-      ],
-      playerStart: {col:1, row:1},
-      teachers: [
-        { col:6, row:1, dx:1, dy:0, steps:0, maxSteps:5 },
-        { col:1, row:8, dx:0, dy:1, steps:0, maxSteps:3 },
-        { col:10, row:5, dx:1, dy:0, steps:0, maxSteps:3 },
-      ],
-      signTexts: { '5,7':'钥匙就在附近！', '12,9':'终点快到了！' }
-    },
-    // ---- Level 3 ----
-    {
-      map: [
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,1,1,1,1,1,0,1,1,1,1,1,0,1],
-        [1,2,0,0,0,0,1,0,0,0,0,0,1,0,1],
-        [1,0,1,1,1,0,1,1,1,0,1,0,1,0,1],
-        [1,0,1,0,0,0,0,0,0,0,1,0,0,0,1],
-        [1,0,1,0,1,1,1,1,1,0,1,1,1,0,1],
-        [1,0,0,0,1,0,2,0,1,0,0,0,0,2,1],
-        [1,1,1,0,1,0,1,0,1,0,1,1,0,0,1],
-        [1,0,0,0,0,0,1,0,0,0,0,1,1,0,1],
-        [1,0,1,1,1,0,1,1,1,1,0,0,0,0,1],
-        [1,2,0,0,1,0,0,0,0,1,0,1,1,0,1],
-        [1,0,1,0,0,0,1,0,2,0,0,0,0,3,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-      ],
-      playerStart: {col:1, row:1},
-      teachers: [
-        { col:7, row:2, dx:0, dy:1, steps:0, maxSteps:4 },
-        { col:11, row:3, dx:0, dy:1, steps:0, maxSteps:5 },
-        { col:2, row:9, dx:1, dy:0, steps:0, maxSteps:4 },
-        { col:8, row:10, dx:1, dy:0, steps:0, maxSteps:3 },
-      ],
-      signTexts: { '6,7':'🗝️ 钥匙藏这里！', '9,5':'⚠️ 老师在附近！' }
-    }
-  ];
-
-  // ============================================================
-  //  Game State
-  // ============================================================
-  let currentLevel  = 0;
-  let lives         = 3;
-  let keysCollected = 0;
-  let totalKeys     = 5;
-  let gameRunning   = false;
-  let invincible    = false;  // brief invincibility after hit
-  let invTimer      = 0;
-  let signMsg       = '';
-  let signTimer     = 0;
-
-  // map state (copied so we can remove keys)
-  let mapState = [];
-
-  // Player
-  let player = { col:1, row:1, moving:false };
-
-  // Teachers (runtime copies)
-  let teachers = [];
-
-  // Input
-  let keys = {};
-
-  // Animation frame
-  let animId = null;
-  let lastTime = 0;
-  let teacherMoveTimer = 0;
-  const TEACHER_SPEED = 500; // ms between teacher moves
-
-  // ============================================================
-  //  Initialize a Level
-  // ============================================================
-  function initLevel(levelIdx) {
-    const lvl = LEVELS[levelIdx];
-    // Deep copy map
-    mapState = lvl.map.map(row => [...row]);
-    // Count keys
-    keysCollected = 0;
-    // Player
-    player = { col: lvl.playerStart.col, row: lvl.playerStart.row };
-    // Teachers
-    teachers = lvl.teachers.map(t => ({...t}));
-    // Reset timers
-    invincible = false; invTimer = 0;
-    signMsg = ''; signTimer = 0;
-    teacherMoveTimer = 0;
-    // Update HUD
-    updateHUD();
-  }
-
-  function updateHUD() {
-    hudLevel.textContent = `第 ${currentLevel+1} 关`;
-    hudKeys.textContent  = `🗝️ ${keysCollected} / ${totalKeys}`;
-    let hearts = '';
-    for(let i=0;i<lives;i++) hearts += '❤️';
-    for(let i=lives;i<3;i++) hearts += '🖤';
-    hudLives.textContent = hearts;
-  }
-
-  // ============================================================
-  //  Main Game Loop
-  // ============================================================
-  function gameLoop(ts) {
-    if (!gameRunning) return;
-    const dt = ts - lastTime;
-    lastTime = ts;
-
-    // Handle player input
-    handleInput();
-
-    // Teacher movement timer
-    teacherMoveTimer += dt;
-    if (teacherMoveTimer >= TEACHER_SPEED) {
-      teacherMoveTimer = 0;
-      moveTeachers();
-    }
-
-    // Invincibility timer
-    if (invincible) {
-      invTimer -= dt;
-      if (invTimer <= 0) invincible = false;
-    }
-
-    // Sign timer
-    if (signTimer > 0) {
-      signTimer -= dt;
-      if (signTimer < 0) signTimer = 0;
-    }
-
-    // Draw
-    draw();
-
-    animId = requestAnimationFrame(gameLoop);
-  }
-
-  // ============================================================
-  //  Input Handling (smooth key repeat)
-  // ============================================================
-  let moveDelay = 0;
-  const MOVE_INTERVAL = 150; // ms between moves when key held
-
-  function handleInput() {
-    // We track move cooldown per frame
-    if (!player._moveCooldown) player._moveCooldown = 0;
-    if (player._moveCooldown > 0) {
-      player._moveCooldown -= 16;
-      return;
-    }
-    let dr = 0, dc = 0;
-    if (keys['ArrowUp'])    dr = -1;
-    else if (keys['ArrowDown'])  dr = 1;
-    else if (keys['ArrowLeft'])  dc = -1;
-    else if (keys['ArrowRight']) dc = 1;
-    else return;
-
-    const nr = player.row + dr;
-    const nc = player.col + dc;
-    if (isWalkable(nc, nr)) {
-      player.row = nr;
-      player.col = nc;
-      player._moveCooldown = MOVE_INTERVAL;
-      checkCell();
-    }
-  }
-
-  function isWalkable(col, row) {
-    if (row < 0 || row >= ROWS || col < 0 || col >= COLS) return false;
-    const t = mapState[row][col];
-    // Door is walkable only if all keys collected
-    if (t === T_DOOR) return keysCollected >= totalKeys;
-    return t !== T_WALL;
-  }
-
-  // ============================================================
-  //  Check current cell for items
-  // ============================================================
-  function checkCell() {
-    const t = mapState[player.row][player.col];
-    if (t === T_KEY) {
-      mapState[player.row][player.col] = T_EMPTY;
-      keysCollected++;
-      updateHUD();
-      if (keysCollected >= totalKeys) {
-        signMsg = '🎊 集齐所有钥匙！去开门吧！';
-        signTimer = 3000;
-      }
-    }
-    if (t === T_DOOR && keysCollected >= totalKeys) {
-      levelClear();
-      return;
-    }
-    if (t === T_SIGN) {
-      const lvl = LEVELS[currentLevel];
-      const key = `${player.col},${player.row}`;
-      if (lvl.signTexts && lvl.signTexts[key]) {
-        signMsg = lvl.signTexts[key];
-        signTimer = 2500;
-      }
-    }
-    // Check teacher collision
-    checkTeacherCollision();
-  }
-
-  // ============================================================
-  //  Teacher Movement
-  // ============================================================
-  function moveTeachers() {
-    teachers.forEach(t => {
-      const nr = t.row + t.dy;
-      const nc = t.col + t.dx;
-      const tile = mapState[nr] && mapState[nr][nc];
-      // Check if walkable (not wall, not door, not out of bounds)
-      if (tile !== undefined && tile !== T_WALL && tile !== T_DOOR) {
-        t.row = nr; t.col = nc; t.steps++;
-      } else {
-        // Reverse direction
-        t.dx = -t.dx; t.dy = -t.dy;
-        t.steps = 0;
-      }
-      if (t.steps >= t.maxSteps) {
-        t.dx = -t.dx; t.dy = -t.dy;
-        t.steps = 0;
-      }
+  // 切换到指定标签的函数
+  function switchTab(tabBtn, section) {
+    // 关闭所有标签
+    [tabCharacters, tabStory, tabDiary, tabStudy].forEach(function(btn) {
+      if (btn) btn.classList.remove('active');
     });
-    checkTeacherCollision();
-  }
-
-  function checkTeacherCollision() {
-    if (invincible) return;
-    teachers.forEach(t => {
-      if (t.row === player.row && t.col === player.col) {
-        hitByTeacher();
-      }
+    [sectionCharacters, sectionStory, sectionDiary, sectionStudy].forEach(function(sec) {
+      if (sec) sec.classList.remove('active');
     });
+    // 打开目标标签
+    if (tabBtn) tabBtn.classList.add('active');
+    if (section) section.classList.add('active');
+    // 平滑滚动到内容区
+    window.scrollTo({ top: 140, behavior: 'smooth' });
   }
 
-  function hitByTeacher() {
-    if (invincible) return;
-    lives--;
-    updateHUD();
-    invincible = true;
-    invTimer = 2000; // 2s invincibility
-    signMsg = '😱 被老师发现了！';
-    signTimer = 1500;
-    if (lives <= 0) {
-      gameOver();
-    }
-  }
+  // 绑定按钮点击事件
+  if (tabCharacters) tabCharacters.addEventListener('click', function() {
+    switchTab(tabCharacters, sectionCharacters);
+  });
 
-  // ============================================================
-  //  Level Clear / Game Over / Win
-  // ============================================================
-  function levelClear() {
-    gameRunning = false;
-    if (animId) cancelAnimationFrame(animId);
-    if (currentLevel < LEVELS.length - 1) {
-      levelTitle.textContent = `第 ${currentLevel+1} 关通过！`;
-      levelMsg.textContent   = `太棒了！你收集了所有钥匙！`;
-      levelScreen.style.display = 'flex';
-    } else {
-      winScreen.style.display = 'flex';
-    }
-  }
+  if (tabStory) tabStory.addEventListener('click', function() {
+    switchTab(tabStory, sectionStory);
+  });
 
-  function gameOver() {
-    gameRunning = false;
-    if (animId) cancelAnimationFrame(animId);
-    loseScreen.style.display = 'flex';
-  }
+  if (tabDiary) tabDiary.addEventListener('click', function() {
+    switchTab(tabDiary, sectionDiary);
+  });
 
-  function restartGame() {
-    currentLevel = 0;
-    lives = 3;
-    hideOverlays();
-    initLevel(currentLevel);
-    gameRunning = true;
-    lastTime = performance.now();
-    animId = requestAnimationFrame(gameLoop);
-  }
+  if (tabStudy) tabStudy.addEventListener('click', function() {
+    switchTab(tabStudy, sectionStudy);
+  });
 
-  function nextLevel() {
-    currentLevel++;
-    hideOverlays();
-    initLevel(currentLevel);
-    gameRunning = true;
-    lastTime = performance.now();
-    animId = requestAnimationFrame(gameLoop);
-  }
-
-  function hideOverlays() {
-    levelScreen.style.display = 'none';
-    winScreen.style.display   = 'none';
-    loseScreen.style.display  = 'none';
-  }
-
-  // ============================================================
-  //  Drawing
-  // ============================================================
-  // Color palette
-  const COLORS = {
-    floor:   '#fef9e7',
-    wall:    '#6c3483',
-    wallTop: '#9b59b6',
-    key:     '#f1c40f',
-    door:    '#e67e22',
-    doorOpen:'#27ae60',
-    sign:    '#3498db',
-    bg:      '#d5d8dc',
+  // ===== 人物卡片点击互动 =====
+  var charCards = document.querySelectorAll('.char-card');
+  var charMessages = {
+    0: "🐬 小海豚说：\"数学是世界上最美丽的语言！一起来发现数学的魔法吧！\"",
+    1: "👦 小人人说：\"每个人都是自己故事里的主角！你今天的故事是什么？\"",
+    2: "🕷️ 蜘蛛侠说：\"大自然是最神奇的课本，快去探索吧！\"",
+    3: "🐑 小羊羊说：\"善良是最美丽的才华，用你的温暖照亮别人！\""
   };
 
-  function draw() {
-    ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
-
-    // Background
-    ctx.fillStyle = '#f0f4ff';
-    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
-
-    // Draw map (offset by HUD height)
-    const ox = 0, oy = HUD_H;
-
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
-        const x = ox + c * TILE;
-        const y = oy + r * TILE;
-        const t = mapState[r][c];
-        drawTile(ctx, t, x, y, c, r);
-      }
-    }
-
-    // Draw player
-    drawPlayer(ox, oy);
-
-    // Draw teachers
-    teachers.forEach(t => drawTeacher(ox, oy, t));
-
-    // Sign message
-    if (signTimer > 0 && signMsg) {
-      drawSignMsg();
-    }
-
-    // Keys overlay on door if not enough keys
-    drawDoorStatus(ox, oy);
-  }
-
-  function drawTile(ctx, t, x, y, c, r) {
-    switch(t) {
-      case T_EMPTY:
-        // Checkerboard floor
-        ctx.fillStyle = ((c+r)%2===0) ? '#f8f9fa' : '#eef2ff';
-        ctx.fillRect(x, y, TILE, TILE);
-        break;
-      case T_WALL:
-        // Wall base
-        ctx.fillStyle = '#7d3c98';
-        ctx.fillRect(x, y, TILE, TILE);
-        // Wall highlight top
-        ctx.fillStyle = '#a569bd';
-        ctx.fillRect(x, y, TILE, 6);
-        // Brick lines
-        ctx.strokeStyle = '#6c3483';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(x+1, y+1, TILE-2, TILE-2);
-        break;
-      case T_KEY:
-        // Floor first
-        ctx.fillStyle = ((c+r)%2===0) ? '#f8f9fa' : '#eef2ff';
-        ctx.fillRect(x, y, TILE, TILE);
-        // Key icon
-        drawEmoji(ctx, '🗝️', x + TILE/2, y + TILE/2, 22);
-        break;
-      case T_DOOR:
-        // Floor
-        ctx.fillStyle = '#fdebd0';
-        ctx.fillRect(x, y, TILE, TILE);
-        // Door frame
-        const isOpen = keysCollected >= totalKeys;
-        ctx.fillStyle = isOpen ? '#27ae60' : '#e67e22';
-        ctx.fillRect(x+4, y+2, TILE-8, TILE-2);
-        // Door panel
-        ctx.fillStyle = isOpen ? '#2ecc71' : '#f39c12';
-        ctx.fillRect(x+8, y+6, TILE-16, TILE-10);
-        // Door knob
-        ctx.fillStyle = '#fff';
-        ctx.beginPath();
-        ctx.arc(x+TILE-12, y+TILE/2, 3, 0, Math.PI*2);
-        ctx.fill();
-        // Lock or open icon
-        drawEmoji(ctx, isOpen ? '🔓' : '🔒', x+TILE/2, y+TILE*0.7, 14);
-        break;
-      case T_SIGN:
-        // Floor
-        ctx.fillStyle = ((c+r)%2===0) ? '#f8f9fa' : '#eef2ff';
-        ctx.fillRect(x, y, TILE, TILE);
-        // Sign post
-        ctx.fillStyle = '#7f8c8d';
-        ctx.fillRect(x+TILE/2-2, y+TILE/2, 4, TILE/2);
-        // Sign board
-        ctx.fillStyle = '#3498db';
-        ctx.fillRect(x+4, y+6, TILE-8, 20);
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 10px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('ℹ️', x+TILE/2, y+20);
-        break;
-      default:
-        ctx.fillStyle = '#f8f9fa';
-        ctx.fillRect(x, y, TILE, TILE);
-    }
-  }
-
-  function drawPlayer(ox, oy) {
-    const x = ox + player.col * TILE + TILE/2;
-    const y = oy + player.row * TILE + TILE/2;
-
-    // Invincibility flash
-    if (invincible && Math.floor(invTimer / 150) % 2 === 0) return;
-
-    // Shadow
-    ctx.fillStyle = 'rgba(0,0,0,0.15)';
-    ctx.beginPath();
-    ctx.ellipse(x, y+14, 10, 4, 0, 0, Math.PI*2);
-    ctx.fill();
-
-    // Body
-    ctx.fillStyle = '#3498db';
-    ctx.fillRect(x-8, y-4, 16, 16);
-
-    // Head
-    ctx.fillStyle = '#fde3a7';
-    ctx.beginPath();
-    ctx.arc(x, y-8, 10, 0, Math.PI*2);
-    ctx.fill();
-
-    // Eyes
-    ctx.fillStyle = '#2c3e50';
-    ctx.beginPath(); ctx.arc(x-4, y-9, 2, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(x+4, y-9, 2, 0, Math.PI*2); ctx.fill();
-
-    // Smile
-    ctx.strokeStyle = '#e74c3c';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.arc(x, y-6, 4, 0.1*Math.PI, 0.9*Math.PI);
-    ctx.stroke();
-
-    // School bag
-    ctx.fillStyle = '#e74c3c';
-    ctx.fillRect(x+7, y-2, 6, 10);
-
-    // Hat
-    ctx.fillStyle = '#2c3e50';
-    ctx.fillRect(x-10, y-18, 20, 5);
-    ctx.fillRect(x-6, y-26, 12, 10);
-  }
-
-  function drawTeacher(ox, oy, t) {
-    const x = ox + t.col * TILE + TILE/2;
-    const y = oy + t.row * TILE + TILE/2;
-
-    // Shadow
-    ctx.fillStyle = 'rgba(0,0,0,0.15)';
-    ctx.beginPath();
-    ctx.ellipse(x, y+14, 10, 4, 0, 0, Math.PI*2);
-    ctx.fill();
-
-    // Body (teacher wears gray suit)
-    ctx.fillStyle = '#7f8c8d';
-    ctx.fillRect(x-9, y-4, 18, 16);
-
-    // Head
-    ctx.fillStyle = '#fde3a7';
-    ctx.beginPath();
-    ctx.arc(x, y-8, 10, 0, Math.PI*2);
-    ctx.fill();
-
-    // Glasses
-    ctx.strokeStyle = '#2c3e50';
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(x-8, y-11, 6, 5);
-    ctx.strokeRect(x+2, y-11, 6, 5);
-    ctx.beginPath();
-    ctx.moveTo(x-2, y-8.5);
-    ctx.lineTo(x+2, y-8.5);
-    ctx.stroke();
-
-    // Angry eyebrows
-    ctx.strokeStyle = '#c0392b';
-    ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(x-9,y-14); ctx.lineTo(x-3,y-13); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(x+3,y-13); ctx.lineTo(x+9,y-14); ctx.stroke();
-
-    // Exclamation warning
-    ctx.font = 'bold 12px Arial';
-    ctx.fillStyle = '#e74c3c';
-    ctx.textAlign = 'center';
-    ctx.fillText('!', x, y-22);
-  }
-
-  function drawEmoji(ctx, emoji, x, y, size) {
-    ctx.font = `${size}px Arial`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(emoji, x, y);
-    ctx.textBaseline = 'alphabetic';
-  }
-
-  function drawSignMsg() {
-    const padding = 16;
-    ctx.font = 'bold 15px Arial';
-    const w = Math.min(ctx.measureText(signMsg).width + padding*2, 380);
-    const h = 44;
-    const x = CANVAS_W/2 - w/2;
-    const y = HUD_H + 10;
-
-    // Bubble
-    ctx.fillStyle = 'rgba(44,62,80,0.88)';
-    roundRect(ctx, x, y, w, h, 12);
-    ctx.fill();
-
-    ctx.fillStyle = '#fff';
-    ctx.textAlign = 'center';
-    ctx.fillText(signMsg, CANVAS_W/2, y + h/2 + 5);
-  }
-
-  function drawDoorStatus(ox, oy) {
-    // Show key count near door if keys not full
-    if (keysCollected < totalKeys) {
-      // Find door
-      for (let r=0; r<ROWS; r++) {
-        for (let c=0; c<COLS; c++) {
-          if (mapState[r][c] === T_DOOR) {
-            const x = ox + c*TILE + TILE/2;
-            const y = oy + r*TILE - 6;
-            ctx.font = 'bold 11px Arial';
-            ctx.fillStyle = '#e74c3c';
-            ctx.textAlign = 'center';
-            ctx.fillText(`${keysCollected}/5`, x, y);
-          }
-        }
-      }
-    }
-  }
-
-  function roundRect(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x+r, y);
-    ctx.lineTo(x+w-r, y);
-    ctx.quadraticCurveTo(x+w, y, x+w, y+r);
-    ctx.lineTo(x+w, y+h-r);
-    ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
-    ctx.lineTo(x+r, y+h);
-    ctx.quadraticCurveTo(x, y+h, x, y+h-r);
-    ctx.lineTo(x, y+r);
-    ctx.quadraticCurveTo(x, y, x+r, y);
-    ctx.closePath();
-  }
-
-  // ============================================================
-  //  Keyboard Events
-  // ============================================================
-  document.addEventListener('keydown', function(e) {
-    keys[e.key] = true;
-    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) {
-      e.preventDefault();
-    }
-  });
-  document.addEventListener('keyup', function(e) {
-    keys[e.key] = false;
+  charCards.forEach(function(card, index) {
+    card.addEventListener('click', function() {
+      // 弹出角色台词
+      alert(charMessages[index] || "欢迎来到花狗山！✨");
+    });
   });
 
-  // ============================================================
-  //  Button Event Listeners
-  // ============================================================
-  document.getElementById('startBtn').addEventListener('click', function() {
-    // Hide start screen, show canvas + HUD
-    startScreen.style.display = 'none';
-    canvas.style.display = 'block';
-    hud.style.display = 'flex';
-    // Reset game
-    currentLevel = 0;
-    lives = 3;
-    initLevel(currentLevel);
-    gameRunning = true;
-    lastTime = performance.now();
-    animId = requestAnimationFrame(gameLoop);
-  });
+  // ===== 随机彩色星星装饰效果 =====
+  function createSparkle() {
+    var sparkle = document.createElement('div');
+    sparkle.textContent = ['⭐','✨','🌟','💫','🌸','🌺'][Math.floor(Math.random()*6)];
+    sparkle.style.cssText = [
+      'position:fixed',
+      'pointer-events:none',
+      'font-size:' + (14 + Math.random()*12) + 'px',
+      'left:' + Math.random()*100 + '%',
+      'top:' + Math.random()*80 + '%',
+      'z-index:50',
+      'animation:sparkleAnim 1.5s ease forwards',
+      'opacity:1'
+    ].join(';');
+    document.body.appendChild(sparkle);
+    setTimeout(function() { sparkle.remove(); }, 1500);
+  }
 
-  document.getElementById('nextLevelBtn').addEventListener('click', function() {
-    nextLevel();
-  });
+  // 添加闪烁动画样式
+  var sparkleStyle = document.createElement('style');
+  sparkleStyle.textContent = '@keyframes sparkleAnim { 0%{transform:scale(0) rotate(0deg);opacity:1;} 50%{transform:scale(1.4) rotate(180deg);opacity:0.8;} 100%{transform:scale(0) rotate(360deg);opacity:0;} }';
+  document.head.appendChild(sparkleStyle);
 
-  document.getElementById('restartFromWinBtn').addEventListener('click', function() {
-    restartGame();
-  });
+  // 每隔一段时间随机生成星星（不太频繁，保持页面美观）
+  setInterval(createSparkle, 2800);
 
-  document.getElementById('restartFromLoseBtn').addEventListener('click', function() {
-    restartGame();
-  });
+  // ===== 标题点击彩蛋 =====
+  var heroTitle = document.querySelector('.hero-title');
+  if (heroTitle) {
+    heroTitle.style.cursor = 'pointer';
+    heroTitle.addEventListener('click', function() {
+      var messages = [
+        "🌸 欢迎来到花狗山！这里有最棒的朋友们！",
+        "🐬 小海豚：2+2=4，但友情是无限大！",
+        "👦 小人人：生活就是一本有趣的故事书！",
+        "🕷️ 蜘蛛侠：去探索吧，世界等着你发现！",
+        "🐑 小羊羊：善良的你是世界上最亮的星！",
+        "🏔️ 花狗山说：好好学习，天天快乐！",
+      ];
+      var randomMsg = messages[Math.floor(Math.random() * messages.length)];
+      alert(randomMsg);
+    });
+  }
 
-  // BUTTON CHECKLIST: #startBtn ✓  #nextLevelBtn ✓  #restartFromWinBtn ✓  #restartFromLoseBtn ✓
+  // BUTTON CHECKLIST:
+  // #tabCharacters ✓
+  // #tabStory ✓
+  // #tabDiary ✓
+  // #tabStudy ✓
+
+  console.log("🌸 花狗山学霸网站加载成功！欢迎小朋友们探索！");
 });
 </script>
+
 </body>
 </html>
