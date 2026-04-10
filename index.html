@@ -1,53 +1,36 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>我的网站</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>花狗山学霸</title>
   <style>
-    /* 页面基础样式 */
+    /* ===== 全局样式 ===== */
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    
     body {
-      font-family: 'Arial', sans-serif;
+      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
       background: #87CEEB;
-      min-height: 100vh;
       overflow-x: hidden;
+      color: #333;
     }
 
-    /* ===== 天空背景 ===== */
+    /* ===== 天空背景动画 ===== */
     .sky {
-      position: relative;
-      width: 100%;
-      height: 100vh;
-      background: linear-gradient(to bottom, #4fc3f7 0%, #81d4fa 40%, #b3e5fc 70%, #e1f5fe 100%);
-      overflow: hidden;
-    }
-
-    /* 太阳 */
-    .sun {
-      position: absolute;
-      top: 60px;
-      right: 120px;
-      width: 80px;
-      height: 80px;
-      background: radial-gradient(circle, #fff176, #ffeb3b, #ffd54f);
-      border-radius: 50%;
-      box-shadow: 0 0 40px 20px rgba(255, 235, 59, 0.5);
-      animation: sunGlow 3s ease-in-out infinite alternate;
-    }
-
-    @keyframes sunGlow {
-      from { box-shadow: 0 0 40px 20px rgba(255, 235, 59, 0.5); }
-      to   { box-shadow: 0 0 60px 35px rgba(255, 235, 59, 0.7); }
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: linear-gradient(180deg, #a8d8f0 0%, #d4f1ff 50%, #c8f0c0 100%);
+      z-index: -10;
     }
 
     /* 云朵 */
     .cloud {
-      position: absolute;
+      position: fixed;
       background: white;
       border-radius: 50px;
-      opacity: 0.9;
+      opacity: 0.88;
+      animation: floatCloud linear infinite;
+      z-index: -5;
     }
     .cloud::before, .cloud::after {
       content: '';
@@ -55,280 +38,1026 @@
       background: white;
       border-radius: 50%;
     }
-    .cloud1 { top: 80px; left: 80px; width: 120px; height: 40px; animation: floatCloud 18s linear infinite; }
-    .cloud1::before { width: 60px; height: 60px; top: -30px; left: 20px; }
-    .cloud1::after  { width: 50px; height: 50px; top: -25px; left: 55px; }
-
-    .cloud2 { top: 140px; left: 400px; width: 90px; height: 30px; animation: floatCloud 25s linear infinite; opacity: 0.75; }
-    .cloud2::before { width: 45px; height: 45px; top: -22px; left: 15px; }
-    .cloud2::after  { width: 38px; height: 38px; top: -18px; left: 42px; }
-
-    .cloud3 { top: 50px; left: 700px; width: 100px; height: 35px; animation: floatCloud 20s linear infinite 5s; }
-    .cloud3::before { width: 55px; height: 55px; top: -27px; left: 18px; }
-    .cloud3::after  { width: 44px; height: 44px; top: -22px; left: 48px; }
-
+    .cloud::before { width: 60%; height: 140%; top: -50%; left: 15%; }
+    .cloud::after  { width: 45%; height: 120%; top: -40%; right: 10%; }
+    .cloud:nth-child(1) { width:160px; height:50px; top:8%;  animation-duration:28s; animation-delay:0s;   opacity:0.9; }
+    .cloud:nth-child(2) { width:110px; height:36px; top:18%; animation-duration:22s; animation-delay:-8s;  opacity:0.75; }
+    .cloud:nth-child(3) { width:200px; height:60px; top:6%;  animation-duration:35s; animation-delay:-14s; opacity:0.85; }
+    .cloud:nth-child(4) { width:80px;  height:28px; top:28%; animation-duration:18s; animation-delay:-4s;  opacity:0.7;  }
     @keyframes floatCloud {
-      from { transform: translateX(0); }
-      to   { transform: translateX(110vw); }
+      from { transform: translateX(-300px); }
+      to   { transform: translateX(110vw);  }
     }
 
-    /* ===== 树林区域 ===== */
-    .forest-layer {
+    /* 雨滴 */
+    .rain-container {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: -3;
+      opacity: 0;
+      transition: opacity 2s;
+    }
+    .rain-container.raining { opacity: 1; }
+    .raindrop {
       position: absolute;
-      bottom: 120px; /* 地面上方 */
-      width: 100%;
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-around;
+      width: 2px;
+      background: linear-gradient(transparent, #89c4f4);
+      border-radius: 2px;
+      animation: fall linear infinite;
+    }
+    @keyframes fall {
+      from { transform: translateY(-30px); }
+      to   { transform: translateY(100vh); }
+    }
+
+    /* 山脉 */
+    .mountains {
+      position: fixed;
+      bottom: 0; left: 0;
+      width: 100%; height: 45%;
+      z-index: -4;
       pointer-events: none;
     }
+    .mountains svg { width: 100%; height: 100%; }
 
-    /* 单棵树 */
-    .tree {
+    /* 树木行 */
+    .treeline {
+      position: fixed;
+      bottom: 0; left: 0;
+      width: 100%; height: 22%;
+      z-index: -3;
+      pointer-events: none;
+    }
+    .treeline svg { width: 100%; height: 100%; }
+
+    /* 阳光 */
+    .sun {
+      position: fixed;
+      top: 40px; right: 80px;
+      width: 80px; height: 80px;
+      background: radial-gradient(circle, #fff176, #ffee58, #fdd835);
+      border-radius: 50%;
+      box-shadow: 0 0 40px 20px rgba(255,238,88,0.4);
+      animation: pulse 3s ease-in-out infinite;
+      z-index: -4;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 40px 20px rgba(255,238,88,0.4); }
+      50%      { box-shadow: 0 0 60px 30px rgba(255,238,88,0.6); }
+    }
+
+    /* ===== 导航栏 ===== */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(10px);
+      border-bottom: 3px solid #a8e6cf;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 30px;
+    }
+    .nav-logo {
+      font-size: 1.6rem;
+      font-weight: 900;
+      background: linear-gradient(90deg, #2196F3, #4CAF50, #E91E63);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 2px;
+    }
+    .nav-links { display: flex; gap: 18px; flex-wrap: wrap; }
+    .nav-links a {
+      text-decoration: none;
+      color: #444;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 6px 14px;
+      border-radius: 20px;
+      transition: all 0.3s;
+    }
+    .nav-links a:hover {
+      background: linear-gradient(135deg, #a8e6cf, #dcedc1);
+      color: #1a6b3c;
+      transform: translateY(-2px);
+    }
+
+    /* ===== 主内容区 ===== */
+    main { position: relative; z-index: 1; }
+
+    /* ===== 英雄区 ===== */
+    .hero {
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      position: relative;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 20px 120px;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #ff6b9d, #ff8e53);
+      color: white;
+      padding: 8px 24px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      letter-spacing: 2px;
+      box-shadow: 0 4px 15px rgba(255,107,157,0.4);
+      animation: bounceIn 1s ease;
+    }
+    .hero h1 {
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      text-shadow: 3px 3px 0px rgba(0,0,0,0.1);
+    }
+    .hero h1 .line1 {
+      background: linear-gradient(135deg, #1565C0, #42A5F5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero h1 .line2 {
+      background: linear-gradient(135deg, #2E7D32, #66BB6A);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-subtitle {
+      font-size: 1.2rem;
+      color: #555;
+      max-width: 600px;
+      line-height: 1.8;
+      margin-bottom: 40px;
+      background: rgba(255,255,255,0.7);
+      padding: 16px 28px;
+      border-radius: 20px;
+      border-left: 5px solid #66BB6A;
+    }
+    .hero-images {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+    .hero-img-card {
+      width: 180px;
+      height: 180px;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+      border: 4px solid white;
+      transition: transform 0.3s, box-shadow 0.3s;
+      animation: float 3s ease-in-out infinite;
+    }
+    .hero-img-card:nth-child(2) { animation-delay: 0.5s; }
+    .hero-img-card:nth-child(3) { animation-delay: 1s; }
+    .hero-img-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .hero-img-card:hover {
+      transform: scale(1.08) translateY(-8px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.25);
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-12px); }
+    }
+    @keyframes bounceIn {
+      0%   { opacity:0; transform: scale(0.5); }
+      80%  { transform: scale(1.1); }
+      100% { opacity:1; transform: scale(1); }
+    }
+    .scroll-hint {
+      font-size: 2rem;
+      animation: bounce 1.5s ease-in-out infinite;
+      cursor: pointer;
+      color: #4CAF50;
+    }
+    @keyframes bounce {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(10px); }
     }
 
-    /* 树冠（三角形叠加） */
-    .tree-top {
-      position: relative;
-    }
-    .tree-top .t1, .tree-top .t2, .tree-top .t3 {
-      display: block;
-      width: 0;
-      height: 0;
+    /* ===== 通用 section ===== */
+    section {
+      padding: 80px 20px;
+      max-width: 1100px;
       margin: 0 auto;
     }
-    .tree-top .t1 {
-      border-left: solid transparent;
-      border-right: solid transparent;
-      border-bottom: solid;
-      margin-bottom: -8px;
+    .section-title {
+      text-align: center;
+      font-size: 2.4rem;
+      font-weight: 900;
+      margin-bottom: 12px;
+      position: relative;
     }
-    .tree-top .t2 {
-      border-left: solid transparent;
-      border-right: solid transparent;
-      border-bottom: solid;
-      margin-bottom: -10px;
-    }
-    .tree-top .t3 {
-      border-left: solid transparent;
-      border-right: solid transparent;
-      border-bottom: solid;
-    }
-
-    /* 树干 */
-    .tree-trunk {
-      background: #5d4037;
+    .section-title::after {
+      content: '';
+      display: block;
+      width: 80px;
+      height: 5px;
+      background: linear-gradient(90deg, #42A5F5, #66BB6A, #f48fb1);
       border-radius: 3px;
+      margin: 10px auto 40px;
+    }
+    .section-subtitle {
+      text-align: center;
+      color: #666;
+      font-size: 1.05rem;
+      margin-top: -30px;
+      margin-bottom: 40px;
     }
 
-    /* 深绿色大树 */
-    .tree-big .t1 { border-left-width: 28px; border-right-width: 28px; border-bottom-width: 40px; border-bottom-color: #2e7d32; }
-    .tree-big .t2 { border-left-width: 36px; border-right-width: 36px; border-bottom-width: 48px; border-bottom-color: #388e3c; }
-    .tree-big .t3 { border-left-width: 44px; border-right-width: 44px; border-bottom-width: 56px; border-bottom-color: #43a047; }
-    .tree-big .tree-trunk { width: 18px; height: 30px; }
-
-    /* 中绿色中树 */
-    .tree-mid .t1 { border-left-width: 20px; border-right-width: 20px; border-bottom-width: 30px; border-bottom-color: #1b5e20; }
-    .tree-mid .t2 { border-left-width: 26px; border-right-width: 26px; border-bottom-width: 36px; border-bottom-color: #2e7d32; }
-    .tree-mid .t3 { border-left-width: 32px; border-right-width: 32px; border-bottom-width: 42px; border-bottom-color: #388e3c; }
-    .tree-mid .tree-trunk { width: 13px; height: 22px; }
-
-    /* 浅绿色小树 */
-    .tree-small .t1 { border-left-width: 13px; border-right-width: 13px; border-bottom-width: 20px; border-bottom-color: #33691e; }
-    .tree-small .t2 { border-left-width: 17px; border-right-width: 17px; border-bottom-width: 25px; border-bottom-color: #558b2f; }
-    .tree-small .t3 { border-left-width: 21px; border-right-width: 21px; border-bottom-width: 30px; border-bottom-color: #689f38; }
-    .tree-small .tree-trunk { width: 9px; height: 16px; }
-
-    /* 后排树（更暗、更小，营造远近感） */
-    .forest-back {
-      bottom: 155px;
+    /* ===== 角色卡片 ===== */
+    .characters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 28px;
     }
-    .tree-back .t1 { border-left-width: 16px; border-right-width: 16px; border-bottom-width: 24px; border-bottom-color: #1a3a1a; }
-    .tree-back .t2 { border-left-width: 21px; border-right-width: 21px; border-bottom-width: 30px; border-bottom-color: #1e4620; }
-    .tree-back .t3 { border-left-width: 26px; border-right-width: 26px; border-bottom-width: 36px; border-bottom-color: #245227; }
-    .tree-back .tree-trunk { width: 9px; height: 18px; background: #3e2723; }
-
-    /* ===== 地面 ===== */
-    .ground {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      height: 130px;
-      background: linear-gradient(to bottom, #66bb6a 0%, #4caf50 30%, #388e3c 100%);
+    .char-card {
+      background: rgba(255,255,255,0.88);
+      border-radius: 28px;
+      padding: 30px 24px;
+      text-align: center;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      border: 3px solid transparent;
+      position: relative;
+      overflow: hidden;
     }
-    /* 草地纹理细节 */
-    .ground::before {
+    .char-card::before {
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0;
-      height: 18px;
-      background: radial-gradient(ellipse 14px 10px at 50% 100%, #81c784 45%, transparent 55%);
-      background-size: 28px 18px;
+      height: 6px;
     }
-
-    /* ===== 内容区 ===== */
-    .content {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-      z-index: 10;
+    .char-card.dolphin::before { background: linear-gradient(90deg, #29B6F6, #0288D1); }
+    .char-card.person::before  { background: linear-gradient(90deg, #FF7043, #FF8A65); }
+    .char-card.spider::before  { background: linear-gradient(90deg, #EF5350, #B71C1C); }
+    .char-card.lamb::before    { background: linear-gradient(90deg, #EC407A, #F06292); }
+    .char-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.18);
     }
-
-    .content h1 {
-      font-size: 3rem;
+    .char-emoji {
+      font-size: 4rem;
+      margin-bottom: 14px;
+      display: block;
+      animation: wiggle 2s ease-in-out infinite;
+    }
+    .char-card:nth-child(2) .char-emoji { animation-delay: 0.3s; }
+    .char-card:nth-child(3) .char-emoji { animation-delay: 0.6s; }
+    .char-card:nth-child(4) .char-emoji { animation-delay: 0.9s; }
+    @keyframes wiggle {
+      0%,100% { transform: rotate(-5deg); }
+      50%      { transform: rotate(5deg); }
+    }
+    .char-name {
+      font-size: 1.5rem;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+    .char-card.dolphin .char-name { color: #0288D1; }
+    .char-card.person  .char-name { color: #E64A19; }
+    .char-card.spider  .char-name { color: #C62828; }
+    .char-card.lamb    .char-name { color: #AD1457; }
+    .char-title {
+      font-size: 0.85rem;
+      font-weight: 700;
       color: white;
-      text-shadow: 2px 4px 8px rgba(0,0,0,0.3);
+      padding: 4px 14px;
+      border-radius: 20px;
+      display: inline-block;
+      margin-bottom: 14px;
+    }
+    .char-card.dolphin .char-title { background: #29B6F6; }
+    .char-card.person  .char-title { background: #FF7043; }
+    .char-card.spider  .char-title { background: #EF5350; }
+    .char-card.lamb    .char-title { background: #EC407A; }
+    .char-desc {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: #555;
+    }
+    .char-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+      margin-top: 14px;
+    }
+    .char-tag {
+      font-size: 0.75rem;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-weight: 700;
+    }
+    .char-card.dolphin .char-tag { background: #E1F5FE; color: #0277BD; }
+    .char-card.person  .char-tag { background: #FBE9E7; color: #BF360C; }
+    .char-card.spider  .char-tag { background: #FFEBEE; color: #B71C1C; }
+    .char-card.lamb    .char-tag { background: #FCE4EC; color: #880E4F; }
+
+    /* ===== 故事区 ===== */
+    #story { background: rgba(255,255,255,0) }
+    .story-container {
+      background: rgba(255,255,255,0.88);
+      border-radius: 32px;
+      padding: 50px 40px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    .story-container::before {
+      content: '📖';
+      position: absolute;
+      font-size: 8rem;
+      opacity: 0.06;
+      top: 20px; right: 30px;
+    }
+    .story-chapter {
+      margin-bottom: 36px;
+    }
+    .story-chapter h3 {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: #2E7D32;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .chapter-num {
+      background: linear-gradient(135deg, #66BB6A, #2E7D32);
+      color: white;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+    .story-chapter p {
+      font-size: 1.05rem;
+      line-height: 2;
+      color: #444;
+      text-indent: 2em;
+    }
+    .story-divider {
+      text-align: center;
+      font-size: 1.5rem;
+      letter-spacing: 8px;
+      color: #aaa;
+      margin: 24px 0;
+    }
+
+    /* ===== 画廊 ===== */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    .gallery-item {
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+      position: relative;
+      aspect-ratio: 4/3;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+    .gallery-item:hover { transform: scale(1.03); box-shadow: 0 16px 50px rgba(0,0,0,0.25); }
+    .gallery-item:hover img { transform: scale(1.08); }
+    .gallery-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(transparent 50%, rgba(0,0,0,0.6));
+      display: flex;
+      align-items: flex-end;
+      padding: 20px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .gallery-item:hover .gallery-overlay { opacity: 1; }
+    .gallery-overlay span {
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    /* ===== 价值观 ===== */
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    .value-card {
+      background: rgba(255,255,255,0.85);
+      border-radius: 24px;
+      padding: 28px 20px;
+      text-align: center;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.09);
+      transition: transform 0.3s;
+    }
+    .value-card:hover { transform: translateY(-8px); }
+    .value-icon { font-size: 3rem; margin-bottom: 12px; display: block; }
+    .value-title {
+      font-size: 1.15rem;
+      font-weight: 900;
+      margin-bottom: 8px;
+      color: #333;
+    }
+    .value-desc { font-size: 0.9rem; color: #666; line-height: 1.6; }
+    .value-card:nth-child(1) { border-top: 5px solid #42A5F5; }
+    .value-card:nth-child(2) { border-top: 5px solid #66BB6A; }
+    .value-card:nth-child(3) { border-top: 5px solid #FF7043; }
+    .value-card:nth-child(4) { border-top: 5px solid #EC407A; }
+    .value-card:nth-child(5) { border-top: 5px solid #AB47BC; }
+    .value-card:nth-child(6) { border-top: 5px solid #FFCA28; }
+
+    /* ===== 格言横幅 ===== */
+    .motto-banner {
+      background: linear-gradient(135deg, #1565C0 0%, #2E7D32 50%, #AD1457 100%);
+      color: white;
+      text-align: center;
+      padding: 60px 30px;
+      margin: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .motto-banner::before {
+      content: '✨';
+      position: absolute;
+      font-size: 6rem;
+      opacity: 0.1;
+      left: 5%; top: 50%;
+      transform: translateY(-50%);
+    }
+    .motto-banner::after {
+      content: '🌟';
+      position: absolute;
+      font-size: 6rem;
+      opacity: 0.1;
+      right: 5%; top: 50%;
+      transform: translateY(-50%);
+    }
+    .motto-banner h2 {
+      font-size: clamp(1.5rem, 4vw, 2.8rem);
+      font-weight: 900;
+      margin-bottom: 16px;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+    }
+    .motto-banner p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+
+    /* ===== 页脚 ===== */
+    footer {
+      background: rgba(30,60,30,0.9);
+      color: rgba(255,255,255,0.9);
+      text-align: center;
+      padding: 40px 20px;
+    }
+    footer .footer-logo {
+      font-size: 2rem;
+      font-weight: 900;
+      background: linear-gradient(90deg, #42A5F5, #66BB6A, #f48fb1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       margin-bottom: 10px;
     }
-
-    .content p {
-      font-size: 1.2rem;
-      color: #e3f2fd;
-      text-shadow: 1px 2px 4px rgba(0,0,0,0.2);
-      margin-bottom: 30px;
-    }
-
-    /* ===== 图片画廊 ===== */
-    .gallery {
-      background: rgba(255,255,255,0.15);
-      backdrop-filter: blur(8px);
-      border-radius: 20px;
-      padding: 20px;
-      display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
-      justify-content: center;
-      border: 2px solid rgba(255,255,255,0.4);
-    }
-
-    .gallery img {
-      width: 140px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 12px;
-      border: 3px solid white;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      cursor: pointer;
-    }
-
-    .gallery img:hover {
-      transform: scale(1.12) rotate(-2deg);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.35);
-    }
+    footer p { font-size: 0.9rem; opacity: 0.7; margin-top: 8px; }
 
     /* ===== 响应式 ===== */
     @media (max-width: 600px) {
-      .content h1 { font-size: 2rem; }
-      .gallery img { width: 100px; height: 70px; }
-      .sun { width: 55px; height: 55px; right: 30px; top: 40px; }
+      nav { padding: 10px 16px; }
+      .nav-logo { font-size: 1.2rem; }
+      .nav-links a { font-size: 0.8rem; padding: 4px 10px; }
+      .story-container { padding: 28px 20px; }
+      .hero-img-card { width: 130px; height: 130px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- 主场景容器 -->
-  <div class="sky">
+  <!-- 天空背景 -->
+  <div class="sky"></div>
+  <div class="sun"></div>
 
-    <!-- 太阳 -->
-    <div class="sun"></div>
+  <!-- 云朵 -->
+  <div class="cloud"></div>
+  <div class="cloud"></div>
+  <div class="cloud"></div>
+  <div class="cloud"></div>
 
-    <!-- 云朵 -->
-    <div class="cloud cloud1"></div>
-    <div class="cloud cloud2"></div>
-    <div class="cloud cloud3"></div>
+  <!-- 雨滴容器 (JS控制) -->
+  <div class="rain-container" id="rainContainer"></div>
 
-    <!-- ===== 后排树林（地平线远处，颜色更深更暗） ===== -->
-    <div class="forest-layer forest-back">
-      <div class="tree tree-back"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
-      <div class="tree tree-back"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
-      <div class="tree tree-back"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
-      <div class="tree tree-back"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
-      <div class="tree tree-back"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
-      <div class="tree tree-back"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
-      <div class="tree tree-back"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
-      <div class="tree tree-back"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
-      <div class="tree tree-back"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
+  <!-- 山脉背景 -->
+  <div class="mountains">
+    <svg viewBox="0 0 1440 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- 远山 浅色 -->
+      <polygon points="0,400 0,250 120,140 240,200 360,100 480,170 600,80 720,160 840,90 960,150 1080,60 1200,140 1320,100 1440,160 1440,400" fill="#b2d8b2" opacity="0.6"/>
+      <!-- 中山 -->
+      <polygon points="0,400 0,320 100,220 200,280 320,180 440,250 560,150 680,230 800,160 920,240 1040,140 1160,210 1280,170 1440,220 1440,400" fill="#81c784" opacity="0.75"/>
+      <!-- 近山 深色 -->
+      <polygon points="0,400 0,360 150,280 280,340 400,260 520,320 640,240 760,310 880,250 1000,330 1120,270 1260,330 1380,290 1440,320 1440,400" fill="#4CAF50" opacity="0.6"/>
+    </svg>
+  </div>
+
+  <!-- 树木 -->
+  <div class="treeline">
+    <svg viewBox="0 0 1440 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- 树木群 -->
+      <g fill="#2E7D32" opacity="0.85">
+        <!-- 一排小树 -->
+        <polygon points="20,200 50,120 80,200"/>
+        <polygon points="60,200 95,100 130,200"/>
+        <polygon points="110,200 140,130 170,200"/>
+        <polygon points="160,200 195,90 230,200"/>
+        <polygon points="220,200 255,115 290,200"/>
+        <polygon points="300,200 340,80 380,200"/>
+        <polygon points="370,200 405,110 440,200"/>
+        <polygon points="450,200 490,70 530,200"/>
+        <polygon points="530,200 570,100 610,200"/>
+        <polygon points="620,200 660,85 700,200"/>
+        <polygon points="710,200 750,110 790,200"/>
+        <polygon points="800,200 840,75 880,200"/>
+        <polygon points="890,200 930,105 970,200"/>
+        <polygon points="980,200 1020,90 1060,200"/>
+        <polygon points="1070,200 1110,115 1150,200"/>
+        <polygon points="1160,200 1200,80 1240,200"/>
+        <polygon points="1250,200 1290,100 1330,200"/>
+        <polygon points="1340,200 1380,120 1420,200"/>
+        <polygon points="1400,200 1430,95 1460,200"/>
+      </g>
+      <g fill="#388E3C" opacity="0.6">
+        <polygon points="0,200 35,140 70,200"/>
+        <polygon points="80,200 120,125 160,200"/>
+        <polygon points="200,200 240,145 280,200"/>
+        <polygon points="350,200 390,120 430,200"/>
+        <polygon points="500,200 545,130 590,200"/>
+        <polygon points="660,200 700,140 740,200"/>
+        <polygon points="830,200 870,125 910,200"/>
+        <polygon points="1000,200 1040,135 1080,200"/>
+        <polygon points="1180,200 1220,120 1260,200"/>
+        <polygon points="1360,200 1400,130 1440,200"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- ===== 导航栏 ===== -->
+  <nav>
+    <div class="nav-logo">🌸 花狗山学霸</div>
+    <div class="nav-links">
+      <a href="#hero">首页</a>
+      <a href="#characters">角色</a>
+      <a href="#story">故事</a>
+      <a href="#gallery">画廊</a>
+      <a href="#values">精神</a>
     </div>
+  </nav>
 
-    <!-- ===== 前排树林（地平线近处，颜色鲜艳，大小混合） ===== -->
-    <div class="forest-layer">
-      <div class="tree tree-small"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
-      <div class="tree tree-big"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
-      <div class="tree tree-mid"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
-      <div class="tree tree-big"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
-      <div class="tree tree-small"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
-      <div class="tree tree-mid"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
-      <div class="tree tree-big"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
-      <div class="tree tree-small"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
-      <div class="tree tree-mid"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
-      <div class="tree tree-big"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
-      <div class="tree tree-small"><div class="tree-top"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div><div class="tree-trunk"></div></div>
-    </div>
+  <!-- ===== 主内容 ===== -->
+  <main>
 
-    <!-- 地面草地 -->
-    <div class="ground"></div>
-
-    <!-- 页面文字内容 + 图片 -->
-    <div class="content">
-      <h1>🌲 我的美丽网站 🌲</h1>
-      <p>欢迎来到我的第一个网站！</p>
-
-      <!-- 图片画廊 -->
-      <div class="gallery">
-        <img src="https://raw.githubusercontent.com/MikeRuan/ai-camp-assets/main/uploads/76ca12be-8448-4026-b5a3-f782a35771b4.jpg" alt="图片1">
-        <img src="https://raw.githubusercontent.com/MikeRuan/ai-camp-assets/main/uploads/18ff0233-36dc-4e57-9e41-bbdfa0e1c2bd.jpg" alt="图片2">
-        <img src="https://raw.githubusercontent.com/MikeRuan/ai-camp-assets/main/uploads/73720cd1-9406-4af7-a58f-a49b97327ff1.jpg" alt="图片3">
+    <!-- === 英雄区 === -->
+    <div class="hero" id="hero">
+      <div class="hero-badge">🏔️ 来自花狗山的传说</div>
+      <h1>
+        <span class="line1">花狗山</span><br/>
+        <span class="line2">学霸精灵</span>
+      </h1>
+      <p class="hero-subtitle">
+        在云雾缭绕的花狗山深处，住着四位善良、聪明又活泼的精灵学霸——
+        他们好学不倦、爱玩爱笑，用智慧和善意守护着这片美丽的山林。
+        每一天都是新的冒险，每一刻都充满了魔法！✨
+      </p>
+      <div class="hero-images">
+        <div class="hero-img-card">
+          <img src="https://raw.githubusercontent.com/MikeRuan/ai-camp-assets/main/uploads/bc488f5b-3cb1-4b74-8b25-36be4631c9f9.jpg" alt="花狗山的朋友们" />
+        </div>
+        <div class="hero-img-card">
+          <img src="https://raw.githubusercontent.com/MikeRuan/ai-camp-assets/main/uploads/1ff54e02-3f3e-4015-9ad6-b424daa6faa8.jpg" alt="花狗山的朋友们" />
+        </div>
+        <div class="hero-img-card">
+          <img src="https://raw.githubusercontent.com/MikeRuan/ai-camp-assets/main/uploads/ca78421d-7489-451f-8aac-4cb6175afc90.jpg" alt="花狗山的朋友们" />
+        </div>
       </div>
+      <div class="scroll-hint">↓</div>
     </div>
 
-  </div><!-- end .sky -->
+    <!-- === 角色介绍 === -->
+    <section id="characters">
+      <h2 class="section-title" style="background:linear-gradient(135deg,#1565C0,#42A5F5);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">四大学霸精灵</h2>
+      <p class="section-subtitle">每一位都独一无二，每一位都闪闪发光 🌟</p>
+      <div class="characters-grid">
 
+        <!-- 小海豚 -->
+        <div class="char-card dolphin">
+          <span class="char-emoji">🐬</span>
+          <div class="char-name">小海豚</div>
+          <div class="char-title">🌊 智慧之海的歌者</div>
+          <p class="char-desc">
+            小海豚从遥远的深海来到花狗山，她带来了大海的宽广与智慧。
+            她最爱在雨后的小溪边唱歌解题，数学和音乐对她来说都是一种诗。
+            每当同伴遇到难题，她总是第一个跳出来说："我们一起想想！"
+          </p>
+          <div class="char-tags">
+            <span class="char-tag">数学天才</span>
+            <span class="char-tag">爱唱歌</span>
+            <span class="char-tag">超级暖心</span>
+            <span class="char-tag">游泳冠军</span>
+          </div>
+        </div>
+
+        <!-- 小人人 -->
+        <div class="char-card person">
+          <span class="char-emoji">🧒</span>
+          <div class="char-name">小人人</div>
+          <div class="char-title">📚 勤奋刻苦的探险家</div>
+          <p class="char-desc">
+            小人人是花狗山里最勤奋的小精灵，总是背着装满书本的大背包到处探险。
+            他相信努力的力量，每天黎明就起床在林间晨读。
+            他的脑袋里装满了各种奇思妙想，是大家公认的"点子王"！
+          </p>
+          <div class="char-tags">
+            <span class="char-tag">超爱读书</span>
+            <span class="char-tag">点子多多</span>
+            <span class="char-tag">早起达人</span>
+            <span class="char-tag">探险家</span>
+          </div>
+        </div>
+
+        <!-- 蜘蛛侠 -->
+        <div class="char-card spider">
+          <span class="char-emoji">🕷️</span>
+          <div class="char-name">蜘蛛侠</div>
+          <div class="char-title">🕸️ 守护花狗山的英雄</div>
+          <p class="char-desc">
+            蜘蛛侠是花狗山的守护者，他能在高大的古树间自由穿梭。
+            他不只是个英雄，更是班级里的科学小达人，最擅长物理和编程。
+            "能力越大，责任越大"——这是他写在日记本第一页的话。
+          </p>
+          <div class="char-tags">
+            <span class="char-tag">科学达人</span>
+            <span class="char-tag">编程高手</span>
+            <span class="char-tag">正义感爆棚</span>
+            <span class="char-tag">爬树冠军</span>
+          </div>
+        </div>
+
+        <!-- 小羊羊 -->
+        <div class="char-card lamb">
+          <span class="char-emoji">🐑</span>
+          <div class="char-name">小羊羊</div>
+          <div class="char-title">🌸 温柔可爱的艺术家</div>
+          <p class="char-desc">
+            小羊羊是花狗山里最温柔的精灵，她的笑容像春天的花朵一样灿烂。
+            她最爱画画和写诗，把花狗山的每一处美景都画进她的彩色本子里。
+            她提醒大家：学习要努力，但也要记得感受生活中的美好！
+          </p>
+          <div class="char-tags">
+            <span class="char-tag">绘画天才</span>
+            <span class="char-tag">写诗达人</span>
+            <span class="char-tag">最温柔</span>
+            <span class="char-tag">花草专家</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- === 故事区 === -->
+    <section id="story" style="max-width:900px;">
+      <h2 class="section-title" style="background:linear-gradient(135deg,#2E7D32,#66BB6A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">花狗山的故事</h2>
+      <p class="section-subtitle">每一个故事，都藏着温暖与智慧 🌿</p>
+
+      <div class="story-container">
+
+        <div class="story-chapter">
+          <h3><span class="chapter-num">序</span>花狗山的传说</h3>
+          <p>
+            在蓝天白云之下，有一座名叫花狗山的神奇大山。
+            这里四季如春，阳光穿过茂密的树叶，在地面洒下金色的光斑；
+            山间小溪欢快地流淌，唱着永恒的歌谣；
+            偶尔飘来一阵细雨，把整座山洗得更加翠绿、晶莹。
+            传说，这里住着花狗山最聪明、最善良的四位精灵——他们便是花狗山的学霸！
+          </p>
+        </div>
+
+        <div class="story-divider">· · · ·</div>
+
+        <div class="story-chapter">
+          <h3><span class="chapter-num">一</span>第一次相遇</h3>
+          <p>
+            那是一个阳光明媚的早晨，小人人背着他的大书包，走在前往花狗山图书馆的小路上。
+            突然，他听见了一阵悠扬的歌声，循声而去，发现小海豚正坐在溪边的石头上，
+            一边哼着歌，一边在树叶上演算数学题。"哇，你也爱数学！"小人人惊喜地喊道。
+            小海豚抬起头，笑了——就像海浪翻起的泡沫，那么明亮。
+            就这样，花狗山的第一段友谊，悄悄生了根。
+          </p>
+        </div>
+
+        <div class="story-divider">· · · ·</div>
+
+        <div class="story-chapter">
+          <h3><span class="chapter-num">二</span>蜘蛛侠的秘密</h3>
+          <p>
+            几天后，一只受伤的小鸟落在了小人人的书包上。
+            正当他们不知所措的时候，一条丝线从天而降——是蜘蛛侠！
+            他从高大的古树间荡了下来，轻轻接住了小鸟，
+            用他从科学书上学到的方法，细心地为小鸟包扎了翅膀。
+            "原来你不只会飞来飞去，还懂急救！"小海豚钦佩地说。
+            蜘蛛侠腼腆地挠挠头："书里写了，我就试试看。"
+            这一天，他们的朋友圈又多了一个人。
+          </p>
+        </div>
+
+        <div class="story-divider">· · · ·</div>
+
+        <div class="story-chapter">
+          <h3><span class="chapter-num">三</span>小羊羊的彩色梦</h3>
+          <p>
+            那年秋天，花狗山下了一场难得的大雨。雨停之后，彩虹挂上了天空。
+            小羊羊站在山顶，用彩笔飞速地描绘着眼前的美景。
+            她画出了七种颜色，却觉得少了什么——少了她的朋友们。
+            于是，她把小海豚、小人人和蜘蛛侠都画进了画里：
+            小海豚在彩虹桥上唱歌，小人人坐在云端读书，蜘蛛侠荡着丝线守护大家。
+            当她把画拿给大家看时，所有人都沉默了——那是最美的花狗山。
+            "我们就是彼此的颜色，"小羊羊轻声说，"少了谁，都不完整。"
+          </p>
+        </div>
+
+        <div class="story-divider">· · · ·</div>
+
+        <div class="story-chapter">
+          <h3><span class="chapter-num">四</span>最难的那道题</h3>
+          <p>
+            花狗山每年都有一场"智慧大挑战"。
+            今年的压轴题，难倒了所有人——连最博学的山神都皱起了眉头。
+            小人人翻遍了书本，小海豚演算了一夜，蜘蛛侠编了好几个程序，小羊羊画满了三本草稿纸。
+            就在大家疲惫地抬起头，互相对视的瞬间，四道思路神奇地拼在了一起，
+            像拼图一样，严丝合缝。答案，就在那里。
+            "一个人的力量是一束光，"小人人说，"但我们四个人加在一起，就是太阳。"
+            山神微笑着在答题纸上盖下了金色的印章：花狗山学霸，当之无愧。
+          </p>
+        </div>
+
+        <div class="story-divider">· · · ·</div>
+
+        <div class="story-chapter">
+          <h3><span class="chapter-num">尾声</span>永远的花狗山</h3>
+          <p>
+            从此，花狗山的四位精灵继续在蓝天白云下学习、玩耍、探险、歌唱。
+            晴天，他们在草地上奔跑；雨天，他们在屋檐下讲故事。
+            他们告诉每一个遇见的小朋友：好奇是最好的老师，善良是最大的力量，
+            朋友是最珍贵的礼物，而快乐——是每天都值得努力的理由。
+            花狗山的故事还在继续，也许下一个精灵，就是你……🌟
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- === 画廊 === -->
+    <section id="gallery">
+      <h2 class="section-title" style="background:linear-gradient(135deg,#AD1457,#f06292);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">精彩画廊</h2>
+      <p class="section-subtitle">花狗山的每一天，都值得被记住 📸</p>
+      <div class="gallery-grid">
+        <div class="gallery-item">
+          <img src="https://raw.githubusercontent.com/MikeRuan/ai-camp-assets/main/uploads/bc488f5b-3cb1-4b74-8b25-36be4631c9f9.jpg" alt="花狗山学霸的日常" />
+          <div class="gallery-overlay"><span>🌸 花狗山的美好时光</span></div>
+        </div>
+        <div class="gallery-item">
+          <img src="https://raw.githubusercontent.com/MikeRuan/ai-camp-assets/main/uploads/1ff54e02-3f3e-4015-9ad6-b424daa6faa8.jpg" alt="精灵们的冒险" />
+          <div class="gallery-overlay"><span>🌿 精灵们的快乐冒险</span></div>
+        </div>
+        <div class="gallery-item">
+          <img src="https://raw.githubusercontent.com/MikeRuan/ai-camp-assets/main/uploads/ca78421d-7489-451f-8aac-4cb6175afc90.jpg" alt="学霸精灵" />
+          <div class="gallery-overlay"><span>✨ 闪闪发光的学霸们</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- === 价值观 === -->
+    <section id="values">
+      <h2 class="section-title" style="background:linear-gradient(135deg,#7B1FA2,#AB47BC);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">花狗山精神</h2>
+      <p class="section-subtitle">这是学霸们共同相信的六件事 💫</p>
+      <div class="values-grid">
+        <div class="value-card">
+          <span class="value-icon">📚</span>
+          <div class="value-title">好学不倦</div>
+          <p class="value-desc">每一天都是新知识的开始，学习是一场永不结束的冒险。</p>
+        </div>
+        <div class="value-card">
+          <span class="value-icon">💪</span>
+          <div class="value-title">努力坚持</div>
+          <p class="value-desc">遇到难题不放弃，一点一点进步，就是最棒的成功。</p>
+        </div>
+        <div class="value-card">
+          <span class="value-icon">🎮</span>
+          <div class="value-title">爱玩创造</div>
+          <p class="value-desc">玩耍不是浪费时间，它是思维的充电和灵感的来源。</p>
+        </div>
+        <div class="value-card">
+          <span class="value-icon">💛</span>
+          <div class="value-title">善良温暖</div>
+          <p class="value-desc">对朋友好，对陌生人也好，善意会像涟漪一样扩散开来。</p>
+        </div>
+        <div class="value-card">
+          <span class="value-icon">🤝</span>
+          <div class="value-title">团结合作</div>
+          <p class="value-desc">一个人走得快，一群人走得远。最难的题，一起答！</p>
+        </div>
+        <div class="value-card">
+          <span class="value-icon">🌈</span>
+          <div class="value-title">热爱生活</div>
+          <p class="value-desc">看见彩虹就欢呼，下雨了就踩水坑——每一刻都值得珍惜。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- === 格言横幅 === -->
+    <div class="motto-banner">
+      <h2>🌟 花狗山学霸的宣言 🌟</h2>
+      <p>
+        "我们不只是学习，我们是在用智慧点亮世界；<br/>
+        我们不只是玩耍，我们是在用快乐书写人生。<br/>
+        善良是我们的力量，好奇是我们的翅膀，<br/>
+        朋友是我们最美的风景——花狗山，永远在这里！"
+      </p>
+    </div>
+
+  </main>
+
+  <!-- ===== 页脚 ===== -->
+  <footer>
+    <div class="footer-logo">🌸 花狗山学霸</div>
+    <p>小海豚 · 小人人 · 蜘蛛侠 · 小羊羊</p>
+    <p style="margin-top:16px;">在蓝天白云下，在大山深林里，永远好学、善良、快乐 🌿</p>
+  </footer>
+
+  <!-- ===== JavaScript ===== -->
   <script>
-    // 页面加载完成后执行
     document.addEventListener('DOMContentLoaded', function() {
 
-      // 让云朵在动画结束后重新从左边出现（循环）
-      var clouds = document.querySelectorAll('.cloud');
-      clouds.forEach(function(cloud) {
-        // 随机化初始位置，让云朵更自然
-        var randomStart = Math.random() * 80;
-        cloud.style.left = randomStart + 'vw';
+      // ====== 创建雨滴效果 ======
+      var rainContainer = document.getElementById('rainContainer');
+      var isRaining = false;
+
+      // 生成雨滴
+      function createRain() {
+        if (!rainContainer) return;
+        rainContainer.innerHTML = '';
+        for (var i = 0; i < 80; i++) {
+          var drop = document.createElement('div');
+          drop.className = 'raindrop';
+          var left   = Math.random() * 100;
+          var height = Math.random() * 60 + 20;
+          var dur    = Math.random() * 0.8 + 0.5;
+          var delay  = Math.random() * 2;
+          drop.style.cssText =
+            'left:' + left + '%;' +
+            'height:' + height + 'px;' +
+            'animation-duration:' + dur + 's;' +
+            'animation-delay:' + delay + 's;' +
+            'top:-' + height + 'px;';
+          rainContainer.appendChild(drop);
+        }
+      }
+
+      // 随机下雨：每隔一段时间随机触发
+      function scheduleRain() {
+        var waitTime = Math.random() * 20000 + 15000; // 15-35秒随机等待
+        setTimeout(function() {
+          // 开始下雨
+          createRain();
+          if (rainContainer) rainContainer.classList.add('raining');
+          isRaining = true;
+
+          // 雨下一段时间后停
+          var rainDuration = Math.random() * 8000 + 5000; // 5-13秒
+          setTimeout(function() {
+            if (rainContainer) rainContainer.classList.remove('raining');
+            isRaining = false;
+            scheduleRain(); // 安排下一次
+          }, rainDuration);
+        }, waitTime);
+      }
+
+      createRain();
+      scheduleRain();
+
+      // ====== 滚动动画 ======
+      // 卡片进入视口时的淡入效果
+      var cards = document.querySelectorAll('.char-card, .value-card, .gallery-item, .story-chapter');
+      cards.forEach(function(card) {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
       });
 
-      // 点击图片放大效果
-      var imgs = document.querySelectorAll('.gallery img');
-      imgs.forEach(function(img) {
-        img.addEventListener('click', function() {
-          // 创建一个临时全屏遮罩
-          var overlay = document.createElement('div');
-          overlay.style.cssText = [
-            'position:fixed', 'top:0', 'left:0', 'width:100vw', 'height:100vh',
-            'background:rgba(0,0,0,0.8)', 'display:flex', 'align-items:center',
-            'justify-content:center', 'z-index:9999', 'cursor:pointer'
-          ].join(';');
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry, i) {
+          if (entry.isIntersecting) {
+            setTimeout(function() {
+              entry.target.style.opacity = '1';
+              entry.target.style.transform = 'translateY(0)';
+            }, i * 80);
+          }
+        });
+      }, { threshold: 0.1 });
 
-          var bigImg = document.createElement('img');
-          bigImg.src = img.src;
-          bigImg.style.cssText = 'max-width:90vw;max-height:90vh;border-radius:16px;border:4px solid white;';
+      cards.forEach(function(card) { observer.observe(card); });
 
-          overlay.appendChild(bigImg);
-          document.body.appendChild(overlay);
-
-          // 点击遮罩关闭
-          overlay.addEventListener('click', function() {
-            document.body.removeChild(overlay);
-          });
+      // ====== 导航平滑滚动 ======
+      var navLinks = document.querySelectorAll('.nav-links a');
+      navLinks.forEach(function(link) {
+        link.addEventListener('click', function(e) {
+          var href = this.getAttribute('href');
+          if (href && href.startsWith('#')) {
+            e.preventDefault();
+            var target = document.querySelector(href);
+            if (target) {
+              target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }
         });
       });
 
-      // BUTTON CHECKLIST: (no standalone buttons in this page — gallery images use click handlers above ✓)
+      // ====== 滚动提示箭头 ======
+      var scrollHint = document.querySelector('.scroll-hint');
+      if (scrollHint) {
+        scrollHint.addEventListener('click', function() {
+          var chars = document.getElementById('characters');
+          if (chars) chars.scrollIntoView({ behavior: 'smooth' });
+        });
+      }
+
+      // ====== 角色卡片点击效果 ======
+      var charCards = document.querySelectorAll('.char-card');
+      charCards.forEach(function(card) {
+        card.addEventListener('click', function() {
+          // 小烟花效果
+          var emoji = this.querySelector('.char-emoji');
+          if (emoji) {
+            emoji.style.transform = 'scale(1.5)';
+            setTimeout(function() {
+              emoji.style.transform = '';
+            }, 300);
+          }
+        });
+      });
+
+      // ====== 标题彩虹动画 ======
+      var mottoH2 = document.querySelector('.motto-banner h2');
+      if (mottoH2) {
+        var hue = 0;
+        setInterval(function() {
+          hue = (hue + 1) % 360;
+          mottoH2.style.textShadow = '2px 2px 8px hsl(' + hue + ',60%,30%)';
+        }, 30);
+      }
+
+      // ====== 太阳悬停交互 ======
+      var sun = document.querySelector('.sun');
+      if (sun) {
+        sun.addEventListener('mouseenter', function() {
+          this.style.transform = 'scale(1.3)';
+        });
+        sun.addEventListener('mouseleave', function() {
+          this.style.transform = 'scale(1)';
+        });
+      }
+
+      // BUTTON CHECKLIST:
+      // No standalone buttons in this page — all interactions use links and divs with event listeners ✓
+      // #scrollHint (div) ✓  nav-links (anchors) ✓  char-cards (divs) ✓
     });
   </script>
 
